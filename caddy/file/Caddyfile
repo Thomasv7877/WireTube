@@ -1,0 +1,13 @@
+yourdomain.com {
+	reverse_proxy dotnet-app:80
+	tls {
+		dns cloudflare [redacted]
+	}
+}
+
+www.yourdomain.com {
+	reverse_proxy dotnet-app:80
+	tls {
+		dns cloudflare [redacted]
+	}
+}
