@@ -3,10 +3,11 @@ import { FetchData } from "./components/FetchData";
 import { Home } from "./components/Home";
 import { GenXml } from "./components/GenXml";
 import { Login} from "./components/Login";
+import { YoutubeApp } from "./components/YoutubeApp";
 
 const AppRoutes = [
   {
-    index: true,
+    path: '/',
     element: <Home />
   },
   {
@@ -25,6 +26,11 @@ const AppRoutes = [
   {
     path: '/Login',
     element: <Login />
+  },
+  {
+    index: true,
+    path: '/YoutubeApp',
+    element: <YoutubeApp />
   }
 ];
 

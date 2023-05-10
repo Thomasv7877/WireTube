@@ -9,6 +9,7 @@ const context = [
   "/trigger",
   "/test",
   "/Users",
+  "/ytApi",
 ];
 
 const onError = (err, req, resp, target) => {

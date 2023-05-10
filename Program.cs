@@ -69,6 +69,9 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "Users",
     pattern: "{controller=Users}/{action=Index}/{id?}");
+app.MapControllerRoute(
+    name: "YtApi",
+    pattern: "{controller=YtApi}/{action=Index}/{id?}");
 
 app.MapFallbackToFile("index.html");
 
