@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+//import { Download, Envelope } from "bootstrap-icons/icons";
 
 export function YoutubeApp(){
     const [searchTerm, setSearchTerm] = useState('');
@@ -6,7 +7,7 @@ export function YoutubeApp(){
     const apiKey = process.env.react_app_yt_api_key;
     const apiUrl = `https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=${searchTerm}&type=video&key=${apiKey}`;
     const [searchResults, setSearchResults] = useState([]);
-    const testVar = "Beginning to End";
+    //const testVar = "https://www.youtube.com/watch?v=aN9DH_GxqEo";
 
     const handleSearch = async () => {
         try {
@@ -19,13 +20,13 @@ export function YoutubeApp(){
         }
       };
 
-    const handlePostTest = async () => {
+    const handlePostTest = async (vidUrl) => {
       setSearchResults([]);
       try {
         const response = await fetch("/ytApi", {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({message: testVar})
+          body: JSON.stringify({message: vidUrl})
             });
         const data = await response.json();
         console.log(data);
@@ -46,7 +47,7 @@ export function YoutubeApp(){
         {
             var vidLink = `https://www.youtube.com/watch?v=${result.id.videoId}`;
         return (
-          <li key={result.id.videoId}><p>{result.snippet.title} <a href={vidLink}>Watch!</a></p></li>
+          <li key={result.id.videoId}><p>{result.snippet.title} <a href={vidLink}>Watch!</a> or <button type="button" className="btn" onClick={() => handlePostTest(vidLink)}><i className="icon bi-download"></i></button></p></li>
         )})}
       </ul>
         </>

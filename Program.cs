@@ -33,6 +33,7 @@ builder.Services.AddSwaggerGen();
     services.AddScoped<IUserService, UserService>();
     services.AddScoped<IUserRepository, UserRepository>();
     services.AddScoped<ApplicationDbSeeder>();
+    services.AddScoped<YtDlService>();
     
 }
 
@@ -81,7 +82,7 @@ using (var scope = app.Services.CreateScope())
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         context.Database.EnsureCreated();
         var seeder = scope.ServiceProvider.GetRequiredService<ApplicationDbSeeder>();
-        seeder.InitializeData();
+        await seeder.InitializeData();
     }
 
 app.Run();
