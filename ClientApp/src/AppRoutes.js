@@ -4,6 +4,7 @@ import { Home } from "./components/Home";
 import { GenXml } from "./components/GenXml";
 import { Login} from "./components/Login";
 import { YoutubeApp } from "./components/YoutubeApp";
+import { YoutubePlay } from "./components/YoutubePlay";
 
 const AppRoutes = [
   {
@@ -31,6 +32,10 @@ const AppRoutes = [
     index: true,
     path: '/YoutubeApp',
     element: <YoutubeApp />
+  },
+  {
+    path: '/YoutubePlay',
+    element: <YoutubePlay />
   }
 ];
 

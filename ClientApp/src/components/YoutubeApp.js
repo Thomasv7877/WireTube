@@ -7,7 +7,7 @@ export function YoutubeApp(){
     const apiKey = process.env.react_app_yt_api_key;
     const apiUrl = `https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=${searchTerm}&type=video&key=${apiKey}`;
     const [searchResults, setSearchResults] = useState([]);
-    //const testVar = "https://www.youtube.com/watch?v=aN9DH_GxqEo";
+    const testVar = "https://www.youtube.com/watch?v=1cBZcpSeiFc&pp=ygUTcGF5YmFjayBqYW1lcyBicm93bg%3D%3D";
 
     const handleSearch = async () => {
         try {
@@ -26,7 +26,7 @@ export function YoutubeApp(){
         const response = await fetch("/ytApi", {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({message: vidUrl})
+          body: JSON.stringify(vidUrl)
             });
         const data = await response.json();
         console.log(data);
@@ -41,7 +41,7 @@ export function YoutubeApp(){
         <p>Find something on youtube</p>
         <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}/>
         <button type="button" className="btn btn-primary" onClick={handleSearch}>Search</button>
-        <button type="button" className="btn btn-primary" onClick={handlePostTest}>Post test & Clear results</button>
+        <button type="button" className="btn btn-primary" onClick={() => handlePostTest(testVar)}>Post test & Clear results</button>
         <ul>
         {searchResults.map(result => 
         {
