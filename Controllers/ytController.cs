@@ -22,8 +22,9 @@ public class YtApiController : ControllerBase
     {
         //Console.WriteLine("Called ytApi get");
         //return "Called ytApi get";
+        //IEnumerable<string> dummySongs = new []{"song1", "song2"};
         IEnumerable<string> tracks = _ytDlService.getTracks();
-        Console.WriteLine(tracks);
+        //Console.WriteLine(tracks);
         return tracks;
     }
     [HttpPost]

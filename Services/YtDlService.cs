@@ -41,7 +41,7 @@ public class YtDlService {
         Console.WriteLine(output);
     }
     public IEnumerable<string> getTracks(){
-        string[] filenames = Directory.GetFiles(_saveFolder);
+        string[] filenames = Directory.GetFiles(_saveFolder).Select(fullPath => Path.GetFileName(fullPath)).ToArray();
 
         foreach (string filename in filenames)
         {
