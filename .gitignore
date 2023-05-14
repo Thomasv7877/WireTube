@@ -232,6 +232,6 @@ _Pvt_Extensions
 .fake/
 
 # manual add:
-app.db
+app.db*
 #caddy/cloudflare.ini
 #caddy/file/Caddyfile

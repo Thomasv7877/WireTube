@@ -6,6 +6,7 @@ const MusicPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
 
+  
   const fetchMusicFiles = async () => {
     try {
       const response = await fetch('/ytApi');
@@ -19,6 +20,11 @@ const MusicPlayer = () => {
       console.error('Error:', error);
     }
   };
+
+  useEffect(() => {
+    fetchMusicFiles();
+  }, []);
+    
 
   const handlePlay = () => {
     setIsPlaying(true);
@@ -96,7 +102,10 @@ const MusicPlayer = () => {
           </div>
         </>
       ) : (
-        <p>Loading music files...</p>
+        <>
+          {/*<p>Loading music files...</p>*/}
+          <div class="spinner-border" role="status"></div>
+        </>
       )}
     </div>
   );

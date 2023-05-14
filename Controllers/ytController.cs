@@ -33,4 +33,13 @@ public class YtApiController : ControllerBase
         _ytDlService.ripAudio(url);
         return Ok(new { message = "Worked fine" });
     }
+    [HttpGet] // [HttpGet("play")]
+    [Route("play")]
+    public IActionResult PlayMusic(string fileName)
+    {
+        Console.WriteLine("trying song playback for: " + fileName);
+        _ytDlService.PlaySong(fileName);
+        
+        return Ok();
+    }
 }
