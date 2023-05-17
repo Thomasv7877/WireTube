@@ -1,5 +1,6 @@
 import React, { useState, useEffect} from "react";
-import MusicPlayer from "./MusicPlayer";
+//import MusicPlayer from "./MusicPlayer";
+import MusicPlayerInReact from "./MusicPlayerInReact";
 
 // psotman test: [GET]https://localhost:7066/YtApi
 
@@ -25,7 +26,7 @@ export function YoutubePlay(){
             <li key={key}>{index}</li>
           )}
         </ol>*/}
-        <MusicPlayer/>
+        <MusicPlayerInReact/>
       </>
     );
 }

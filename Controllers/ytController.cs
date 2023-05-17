@@ -38,8 +38,26 @@ public class YtApiController : ControllerBase
     public IActionResult PlayMusic(string fileName)
     {
         Console.WriteLine("trying song playback for: " + fileName);
-        _ytDlService.PlaySong(fileName);
+        //_ytDlService.PlaySong(fileName);
         
         return Ok();
     }
+    [HttpGet("{fileName}")]
+    [Route("audio")]
+    public IActionResult StreamSong(string fileName)
+    {
+        Console.WriteLine("streaming song: " + fileName);
+        FileStream? fileStream = _ytDlService.GetFileStream(fileName);
+        if (fileStream == null){
+                return NotFound();
+            }
+
+        string contentType = _ytDlService.GetContentType(fileName);
+        if (contentType == null){
+            return BadRequest();
+        }
+        
+        return new FileStreamResult(fileStream, contentType);
+    }
+    
 }
