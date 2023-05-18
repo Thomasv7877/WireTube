@@ -26,3 +26,30 @@ code {
 #xmlTitel {
   margin: 10px;
 }
+#audio-library {
+  /*height: 100%;*/
+  overflow: scroll;
+}
+
+#audio-library li:hover  {
+    background-color: lightgray;
+    cursor: default;
+}
+#audio-library li.active  {
+  background-color: lightgray;
+}
+#audio-player {
+  display: block;
+  width: 100%;
+}
+#media-control button {
+  background-color: #484848;
+  color: #fff;
+}
+#media-control button:hover {
+  background-color: #6b6b6b;
+}
+.al-container {
+  display: flex;
+  flex-direction: column;
+}

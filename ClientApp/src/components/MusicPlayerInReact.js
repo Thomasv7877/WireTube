@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import '../custom.css'
 
 const MusicPlayerInReact = () => {
   const [musicFiles, setMusicFiles] = useState([]);
@@ -37,6 +38,10 @@ const MusicPlayerInReact = () => {
     setCurrentSongIndex(prevIndex => (prevIndex < musicFiles.length - 1 ? prevIndex + 1 : 0));
     setIsPlaying(true);
   };
+  const handleDoubleClick = (index) => {
+    setCurrentSongIndex(index);
+    setIsPlaying(true);
+  }
 
   // Fetch music files when the component mounts
   useEffect(() => {
@@ -63,17 +68,17 @@ const MusicPlayerInReact = () => {
   }, [currentSongIndex, isPlaying, musicFiles]);
 
   return (
-    <div>
+    <div className='al-container'>
       {musicFiles.length > 0 ? (
         <>
-          <audio id="audio-player" ref={audioRef} src={`ytApi/audio?fileName=${musicFiles[currentSongIndex]}`} />
-          <ul>
+          <ol id='audio-library'>
             {musicFiles.map((file, index) => (
-              <li key={index}>{file}</li>
+              <li key={index} onDoubleClick={() => handleDoubleClick(index)} className={currentSongIndex == index && isPlaying ? 'active' : ''}>{file}</li>
             ))}
-          </ul>
-
-          <div>
+          </ol>
+          
+          <div id='media-control'>
+          <audio id="audio-player" ref={audioRef} src={`ytApi/audio?fileName=${musicFiles[currentSongIndex]}`} controls />
             <button onClick={handlePrevious}>Previous</button>
 
             {isPlaying ? (
