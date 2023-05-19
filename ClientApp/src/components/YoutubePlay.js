@@ -20,7 +20,7 @@ export function YoutubePlay(){
     
       
     return(
-        <><p>Playlist</p>
+        <><p>Music Library</p>
         {/*<ol>
           {songs.map((index, key) =>
             <li key={key}>{index}</li>

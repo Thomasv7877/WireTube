@@ -26,11 +26,10 @@ code {
 #xmlTitel {
   margin: 10px;
 }
-#audio-library {
-  /*height: 100%;*/
-  overflow: scroll;
-}
 
+#search-lib {
+  margin-bottom: 15px;
+}
 #audio-library li:hover  {
     background-color: lightgray;
     cursor: default;
@@ -49,7 +48,21 @@ code {
 #media-control button:hover {
   background-color: #6b6b6b;
 }
+
 .al-container {
   display: flex;
   flex-direction: column;
+  height: 100vh;
+}
+.scroll-pane {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+#audio-library {
+  height: 90vh
+}
+#media-control {
+  position: fixed;
+  bottom: 0;
+  width: 87%;
 }

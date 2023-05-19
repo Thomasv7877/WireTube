@@ -2,14 +2,16 @@ using WebApi.Helpers;
 using Microsoft.Extensions.Options;
 using System;
 using System.Diagnostics;
-using NAudio.Wave;
+//using NAudio.Wave;
 //using NAudio.opus;
-using NAudio.Wave.SampleProviders;
+//using NAudio.Wave.SampleProviders;
 //using NetCoreAudio;
 // using System.Timers;
 // using System;
 // using System.Media;
 //using System.Timers;
+//using TagLib;
+using TagLib;
 
 namespace WebApi.Services;
 
@@ -17,7 +19,7 @@ public class YtDlService {
 
     private readonly AppSettings _appSettings;
     private readonly string? _saveFolder;
-    private WaveOutEvent _outputDevice;
+    //private WaveOutEvent _outputDevice;
     private PlaybackProgressModel _playbackProgressModel;
     //private AudioFileReader _audioFile;
     //private Player _player;
@@ -27,7 +29,7 @@ public class YtDlService {
     {
         _appSettings = appSettingsOptions.Value;
         _saveFolder = _appSettings.SaveFolder;
-        _outputDevice = new WaveOutEvent();
+        //_outputDevice = new WaveOutEvent();
         _playbackProgressModel = new PlaybackProgressModel();
         //_timer = new System.Timers.Timer(1000);
 
@@ -58,12 +60,15 @@ public class YtDlService {
         Console.WriteLine(output);
     }
     public IEnumerable<string> getTracks(){
-        string[] filenames = Directory.GetFiles(_saveFolder).Select(fullPath => Path.GetFileName(fullPath)).ToArray();
+        var extensions = new string[]{".opus", ".mp3", ".ogg", ".wav"};
+        string[] filenames = Directory.GetFiles(_saveFolder).Where(f => extensions.Any(ext => Path.GetExtension(f) == ext)).Select(fullPath => Path.GetFileName(fullPath)).ToArray();
 
-        foreach (string filename in filenames)
+        /*foreach (string filename in filenames)
         {
             Console.WriteLine(filename);
-        }
+        }*/
+        Console.WriteLine($"found {filenames.Length} audio files");
+
         return filenames;
     }
     public FileStream? GetFileStream(string fileName){
@@ -72,6 +77,19 @@ public class YtDlService {
         if (!System.IO.File.Exists(filePath)){
             return null;
         }
+        //System.IO.FileInfo fileInfo = new System.IO.FileInfo(filePath);
+        //Console.WriteLine($"File info:\n{fileInfo.CreationTime}");
+        TagLib.File file = TagLib.File.Create(filePath);
+        TagLib.Properties properties = file.Properties;
+
+        Console.WriteLine("File Name: " + System.IO.Path.GetFileName(filePath));
+        Console.WriteLine("Duration: " + properties.Duration);
+        Console.WriteLine("Bitrate: " + properties.AudioBitrate);
+        Console.WriteLine("Sample Rate: " + properties.AudioSampleRate);
+        Console.WriteLine("Channels: " + properties.AudioChannels);
+        Console.WriteLine("Codec Name: " + properties.Codecs.FirstOrDefault()?.Description);
+
+
         // Open the file stream
         FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         return fileStream;

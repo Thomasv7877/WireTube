@@ -6,6 +6,8 @@ const MusicPlayerInReact = () => {
   const [currentSongIndex, setCurrentSongIndex] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredSongs, setFilteredSongs] = useState([]);
 
   const fetchMusicList = async () => {
     try {
@@ -15,6 +17,8 @@ const MusicPlayerInReact = () => {
       }
       const data = await response.json();
       setMusicFiles(data);
+      setFilteredSongs(data)
+      //handleSearch(data)
       setCurrentSongIndex(0);
     } catch (error) {
       console.error('Error:', error);
@@ -30,18 +34,28 @@ const MusicPlayerInReact = () => {
   };
 
   const handlePrevious = () => {
-    setCurrentSongIndex(prevIndex => (prevIndex > 0 ? prevIndex - 1 : musicFiles.length - 1));
+    setCurrentSongIndex(prevIndex => (prevIndex > 0 ? prevIndex - 1 : filteredSongs.length - 1));
     setIsPlaying(true);
   };
 
   const handleNext = () => {
-    setCurrentSongIndex(prevIndex => (prevIndex < musicFiles.length - 1 ? prevIndex + 1 : 0));
+    setCurrentSongIndex(prevIndex => (prevIndex < filteredSongs.length - 1 ? prevIndex + 1 : 0));
     setIsPlaying(true);
   };
   const handleDoubleClick = (index) => {
     setCurrentSongIndex(index);
     setIsPlaying(true);
   }
+  const handleSearch = (event) => {
+    const query = event.target.value;
+    setSearchQuery(query);
+    setIsPlaying(false);
+  
+    const filtered = musicFiles.filter((song) =>
+      song.toLowerCase().includes(query.toLowerCase())
+    );
+    setFilteredSongs(filtered);
+  };
 
   // Fetch music files when the component mounts
   useEffect(() => {
@@ -65,20 +79,25 @@ const MusicPlayerInReact = () => {
         audioRef.current.pause();
       }
     }
-  }, [currentSongIndex, isPlaying, musicFiles]);
+  }, [currentSongIndex, isPlaying, filteredSongs]);
 
   return (
     <div className='al-container'>
       {musicFiles.length > 0 ? (
         <>
+          <input id='search-lib' type="text" value={searchQuery} onChange={handleSearch} placeholder="Search songs..."/>
+          <div className='scroll-pane'>
+            <div className='content-wrapper'>
           <ol id='audio-library'>
-            {musicFiles.map((file, index) => (
-              <li key={index} onDoubleClick={() => handleDoubleClick(index)} className={currentSongIndex == index && isPlaying ? 'active' : ''}>{file}</li>
+            {filteredSongs.map((file, index) => (
+              <li key={index} onDoubleClick={() => handleDoubleClick(index)} className={currentSongIndex === index && isPlaying ? 'active' : ''}>{file}</li>
             ))}
           </ol>
+          </div>
+          </div>
           
           <div id='media-control'>
-          <audio id="audio-player" ref={audioRef} src={`ytApi/audio?fileName=${musicFiles[currentSongIndex]}`} controls />
+          <audio id="audio-player" ref={audioRef} src={isPlaying? `ytApi/audio?fileName=${filteredSongs[currentSongIndex]}` : null} controls />
             <button onClick={handlePrevious}>Previous</button>
 
             {isPlaying ? (
