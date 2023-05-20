@@ -17,13 +17,23 @@ public class YtApiController : ControllerBase
         _ytDlService = ytDlService;
     }
 
-    [HttpGet]
-    public IEnumerable<string> GetTracks()
+    [HttpGet("tracks")]
+    public IEnumerable<dynamic> GetTracks()
     {
         //Console.WriteLine("Called ytApi get");
         //return "Called ytApi get";
         //IEnumerable<string> dummySongs = new []{"song1", "song2"};
-        IEnumerable<string> tracks = _ytDlService.getTracks();
+        var tracks = _ytDlService.getTracks();
+        //Console.WriteLine(tracks);
+        return tracks;
+    }
+    [HttpGet("tracknames")]
+    public IEnumerable<string> GetTrackNames()
+    {
+        //Console.WriteLine("Called ytApi get");
+        //return "Called ytApi get";
+        //IEnumerable<string> dummySongs = new []{"song1", "song2"};
+        IEnumerable<string> tracks = _ytDlService.getTrackNames();
         //Console.WriteLine(tracks);
         return tracks;
     }
@@ -42,7 +52,7 @@ public class YtApiController : ControllerBase
         
         return Ok();
     }
-    [HttpGet("{fileName}")]
+    [HttpGet] // [HttpGet("{fileName}")]
     [Route("audio")]
     public IActionResult StreamSong(string fileName)
     {

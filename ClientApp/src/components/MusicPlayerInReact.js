@@ -8,17 +8,33 @@ const MusicPlayerInReact = () => {
   const audioRef = useRef(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredSongs, setFilteredSongs] = useState([]);
+  const [isShuffled, setIsShuffled] = useState(false);
 
-  const fetchMusicList = async () => {
+  /*const fetchMusicList = async () => {
     try {
-      const response = await fetch('/ytApi');
+      const response = await fetch('/ytApi/tracknames');
       if (!response.ok) {
         throw new Error('Request failed');
       }
       const data = await response.json();
       setMusicFiles(data);
-      setFilteredSongs(data)
+      setFilteredSongs(data);
       //handleSearch(data)
+      setCurrentSongIndex(0);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };*/
+  const fetchMusicAll = async () => {
+    try {
+      const response = await fetch('/ytApi/tracks');
+      if (!response.ok) {
+        throw new Error('Request failed');
+      }
+      const data = await response.json();
+      console.log(data[0]);
+      setMusicFiles(data);
+      setFilteredSongs(data);
       setCurrentSongIndex(0);
     } catch (error) {
       console.error('Error:', error);
@@ -39,9 +55,17 @@ const MusicPlayerInReact = () => {
   };
 
   const handleNext = () => {
-    setCurrentSongIndex(prevIndex => (prevIndex < filteredSongs.length - 1 ? prevIndex + 1 : 0));
+    if(isShuffled){
+      setCurrentSongIndex(Math.floor(Math.random() * filteredSongs.length));
+    }else{
+      setCurrentSongIndex(prevIndex => (prevIndex < filteredSongs.length - 1 ? prevIndex + 1 : 0));
+    }
     setIsPlaying(true);
   };
+  const handleShuffle = () => {
+    setIsShuffled(!isShuffled);
+  };
+
   const handleDoubleClick = (index) => {
     setCurrentSongIndex(index);
     setIsPlaying(true);
@@ -51,15 +75,20 @@ const MusicPlayerInReact = () => {
     setSearchQuery(query);
     setIsPlaying(false);
   
-    const filtered = musicFiles.filter((song) =>
+    /*const filtered = musicFiles.filter((song) =>
       song.toLowerCase().includes(query.toLowerCase())
+    );*/
+    console.log(musicFiles[0]);
+    const filtered = musicFiles.filter((song) =>
+      (song.fileName + song.title + song.artist + song.album).toLowerCase().includes(query.toLowerCase())
     );
     setFilteredSongs(filtered);
   };
 
   // Fetch music files when the component mounts
   useEffect(() => {
-    fetchMusicList();
+    //fetchMusicList();
+    fetchMusicAll();
   }, []);
 
   // Handle playback when the current song index changes
@@ -88,16 +117,41 @@ const MusicPlayerInReact = () => {
           <input id='search-lib' type="text" value={searchQuery} onChange={handleSearch} placeholder="Search songs..."/>
           <div className='scroll-pane'>
             <div className='content-wrapper'>
-          <ol id='audio-library'>
+          {/*<ol id='audio-library'>
             {filteredSongs.map((file, index) => (
               <li key={index} onDoubleClick={() => handleDoubleClick(index)} className={currentSongIndex === index && isPlaying ? 'active' : ''}>{file}</li>
             ))}
-          </ol>
+            </ol>
+            */}
+            <table className="table table-striped" aria-labelledby="tableLabel">
+              <thead>
+                <tr>
+                  <th>Nr</th>
+                  <th>FileName</th>
+                  <th>Title</th>
+                  <th>Artist</th>
+                  <th>Album</th>
+                  <th>Duration</th>
+                </tr>
+              </thead>
+              <tbody>
+              {filteredSongs.map((song, index) => (
+              <tr key={index} onDoubleClick={() => handleDoubleClick(index)} className={currentSongIndex === index && isPlaying ? 'active' : ''}>
+                <td>{index}</td>
+                <td>{song.fileName}</td>
+                <td>{song.title}</td>
+                <td>{song.artist}</td>
+                <td>{song.album}</td>
+                <td>{song.duration}</td>
+              </tr>
+            ))}
+              </tbody>
+            </table>
           </div>
           </div>
           
           <div id='media-control'>
-          <audio id="audio-player" ref={audioRef} src={isPlaying? `ytApi/audio?fileName=${filteredSongs[currentSongIndex]}` : null} controls />
+          <audio id="audio-player" ref={audioRef} src={isPlaying? `ytApi/audio?fileName=${filteredSongs[currentSongIndex].fileName}` : null} onEnded={handleNext} controls />
             <button onClick={handlePrevious}>Previous</button>
 
             {isPlaying ? (
@@ -107,6 +161,7 @@ const MusicPlayerInReact = () => {
             )}
 
             <button onClick={handleNext}>Next</button>
+            <button onClick={handleShuffle} style={{backgroundColor: isShuffled && '#00b6f0'}}>Shuffle</button>
           </div>
         </>
       ) : (

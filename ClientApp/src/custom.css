@@ -37,6 +37,16 @@ code {
 #audio-library li.active  {
   background-color: lightgray;
 }
+tr.active {
+  background-color: lightgray;
+}
+tr:hover{
+  background-color: lightgray;
+  cursor: default;
+}
+tr {
+  font-size: smaller;
+}
 #audio-player {
   display: block;
   width: 100%;
@@ -48,7 +58,6 @@ code {
 #media-control button:hover {
   background-color: #6b6b6b;
 }
-
 .al-container {
   display: flex;
   flex-direction: column;
@@ -65,4 +74,7 @@ code {
   position: fixed;
   bottom: 0;
   width: 87%;
+}
+.shuffled {
+  background-color: black;
 }

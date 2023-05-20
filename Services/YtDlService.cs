@@ -59,7 +59,27 @@ public class YtDlService {
 
         Console.WriteLine(output);
     }
-    public IEnumerable<string> getTracks(){
+    public IEnumerable<dynamic> getTracks(){
+        var extensions = new string[]{".opus", ".mp3", ".ogg", ".wav"};
+
+        var songs = Directory.GetFiles(_saveFolder)
+            .Where(f => extensions.Any(ext => Path.GetExtension(f) == ext))
+            .Select( filePath => TagLib.File.Create(filePath))
+            .Select(tagLib => new {
+                FileName = Path.GetFileName(tagLib.Name),
+                Title = tagLib.Tag.Title,
+                Album = tagLib.Tag.Album,
+                Artist = tagLib.Tag.FirstArtist,
+                Duration = tagLib.Properties.Duration.ToString(@"mm\:ss"),
+                SampleRate = tagLib.Properties.AudioSampleRate,
+                Codec = tagLib.Properties.Codecs.FirstOrDefault().Description.Split(" ").First(),
+                FileSize = Math.Round((double)(new FileInfo(Path.Combine(_saveFolder, tagLib.Name)).Length) / (1024 * 1024), 2)
+            }
+            ).ToArray();
+
+        return songs;
+    }
+    public IEnumerable<string> getTrackNames(){
         var extensions = new string[]{".opus", ".mp3", ".ogg", ".wav"};
         string[] filenames = Directory.GetFiles(_saveFolder).Where(f => extensions.Any(ext => Path.GetExtension(f) == ext)).Select(fullPath => Path.GetFileName(fullPath)).ToArray();
 
@@ -71,24 +91,13 @@ public class YtDlService {
 
         return filenames;
     }
+
     public FileStream? GetFileStream(string fileName){
         string filePath = Path.Combine(_saveFolder, fileName);
         // Check if the file exists
         if (!System.IO.File.Exists(filePath)){
             return null;
         }
-        //System.IO.FileInfo fileInfo = new System.IO.FileInfo(filePath);
-        //Console.WriteLine($"File info:\n{fileInfo.CreationTime}");
-        TagLib.File file = TagLib.File.Create(filePath);
-        TagLib.Properties properties = file.Properties;
-
-        Console.WriteLine("File Name: " + System.IO.Path.GetFileName(filePath));
-        Console.WriteLine("Duration: " + properties.Duration);
-        Console.WriteLine("Bitrate: " + properties.AudioBitrate);
-        Console.WriteLine("Sample Rate: " + properties.AudioSampleRate);
-        Console.WriteLine("Channels: " + properties.AudioChannels);
-        Console.WriteLine("Codec Name: " + properties.Codecs.FirstOrDefault()?.Description);
-
 
         // Open the file stream
         FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
@@ -144,4 +153,16 @@ public class YtDlService {
         return (TimeSpan) _playbackProgressModel.CurrentPosition;
     }
     */
+    }
+    // Niet nodig, dynmamisch obj gebruikt in getTracks
+    public class songInfo{
+        string FileName {get; set;}
+        string Title {get; set;}
+        string Album {get; set;}
+        string Artist {get; set;}
+        TimeSpan Duration {get; set;}
+        string SampleRate {get; set;}
+        string Codec {get; set;}
+        int FileSize {get; set;}
+
     }
