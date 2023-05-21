@@ -32,7 +32,7 @@ const MusicPlayerInReact = () => {
         throw new Error('Request failed');
       }
       const data = await response.json();
-      console.log(data[0]);
+      //console.log(data[0]);
       setMusicFiles(data);
       setFilteredSongs(data);
       setCurrentSongIndex(0);

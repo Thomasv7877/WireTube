@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from "react";
+import React from "react";
 //import MusicPlayer from "./MusicPlayer";
 import MusicPlayerInReact from "./MusicPlayerInReact";
 
@@ -6,17 +6,17 @@ import MusicPlayerInReact from "./MusicPlayerInReact";
 
 export function YoutubePlay(){
     //var songs = [];
-    const [songs, setSongs] = useState([]);
+    //const [songs, setSongs] = useState([]);
 
-    
-    useEffect(() => {
+    // fetching songs handled by MusicPlayerInReact component
+    /*useEffect(() => {
       const fetchSongs = async () => {
         const response = await fetch('/ytApi');
         const data = await response.json();
         setSongs(data);
     };
     fetchSongs();
-    }, [])
+    }, [])*/
     
       
     return(

@@ -47,9 +47,21 @@ export function YoutubeApp(){
         {
             var vidLink = `https://www.youtube.com/watch?v=${result.id.videoId}`;
         return (
-          <li key={result.id.videoId}><p>{result.snippet.title} <a href={vidLink}>Watch!</a> or <button type="button" className="btn" onClick={() => handlePostTest(vidLink)}><i className="icon bi-download"></i></button></p></li>
+          <li key={result.id.videoId}>
+            <img src={result.snippet.thumbnails.default.url}></img>
+            <p>{result.snippet.title} <a href={vidLink}>Watch!</a> or <button type="button" className="btn" onClick={() => handlePostTest(vidLink)}><i className="icon bi-download"></i></button></p>
+            </li>
         )})}
       </ul>
         </>
     );
 }
+/*
+https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=lil xan colorblind&type=video&key=AIzaSyDnMozDltngJNf45Dnel-Xxo1Gm-Q0_uUU
+https://youtube.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=wylMwU1wEOM&key=AIzaSyDnMozDltngJNf45Dnel-Xxo1Gm-Q0_uUU
+
+var vidLink = `https://www.youtube.com/watch?v=${result.id.videoId}`;
+var vidTitle = result.snippet.title
+var channelTitle = result.channelTitle
+
+*/
