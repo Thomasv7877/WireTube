@@ -78,3 +78,23 @@ tr {
 .shuffled {
   background-color: black;
 }
+
+#searchYt {
+  width: 30%;
+  margin-bottom: 1em;
+}
+.spinner-grow {
+  display: block;
+  margin: 1em;
+}
+#ytResults {
+  padding-left: 0%;
+}
+#ytResults li {
+  display: flex;
+  margin-bottom: 1em;
+}
+#ytResults li p {
+  vertical-align: bottom;
+  margin-left: 1em;
+}
