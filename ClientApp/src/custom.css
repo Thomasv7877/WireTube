@@ -97,4 +97,5 @@ tr {
 #ytResults li p {
   vertical-align: bottom;
   margin-left: 1em;
+  white-space: pre-wrap;
 }

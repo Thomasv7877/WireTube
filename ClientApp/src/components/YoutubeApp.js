@@ -16,7 +16,14 @@ export function YoutubeApp(){
           setIsLoading(true);
           const response = await fetch(apiUrl);
           const data = await response.json();
-          console.log(data);
+          for(var i = 0; i < data.items.length; i++){
+            var detailUrl = `https://youtube.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${data.items[i].id.videoId}&key=${apiKey}`;
+            const subResponse = await fetch(detailUrl);
+            const subData = await subResponse.json();
+            //console.log(subData.items[0].statistics.viewCount);
+            data.items[i]['views'] = subData.items[0].statistics.viewCount;
+          }
+          //console.log(data.items[0]);
           setSearchResults(data.items);
           setIsLoading(false);
         } catch (error) {
@@ -59,7 +66,10 @@ export function YoutubeApp(){
         return (
           <li key={result.id.videoId}>
             <a href={vidLink}><img src={result.snippet.thumbnails.default.url} alt={result.snippet.title}></img></a>
-            <p>{result.snippet.title} <a href={vidLink}>Watch!</a> or <button type="button" className="btn" onClick={() => handleDownload(vidLink)}><i className="icon bi-download"></i></button></p>
+            <p>{result.snippet.title}</p>
+            <button type="button" className="btn" onClick={() => handleDownload(vidLink)}><i className="icon bi-download"></i></button>
+            <p>Views: {result.views}</p>
+            <p>Channel: {result.snippet.channelTitle}</p>
             </li>
         )})}
       </ul>) : (<div className="spinner-grow text-primary m-5" role="status">
@@ -74,6 +84,7 @@ https://youtube.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=wylM
 
 var vidLink = `https://www.youtube.com/watch?v=${result.id.videoId}`;
 var vidTitle = result.snippet.title
-var channelTitle = result.channelTitle
-
+var channelTitle = result.snippet.channelTitle
+var imgSrc = result.snippet.thumbnails.default.url
+var vidId = result.id.videoId
 */
