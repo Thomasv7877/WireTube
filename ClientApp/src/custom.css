@@ -10,13 +10,11 @@ a {
 code {
   color: #E01A76;
 }
-
 .btn-primary {
   color: #fff;
   background-color: #1b6ec2;
   border-color: #1861ac;
 }
-
 .xmlForm * {
   margin: 10px;
 }
@@ -91,11 +89,27 @@ tr {
   padding-left: 0%;
 }
 #ytResults li {
-  display: flex;
+  /*display: flex;*/
   margin-bottom: 1em;
+  list-style: none;
+}
+#ytResults li img {
+  float: left;
 }
 #ytResults li p {
-  vertical-align: bottom;
-  margin-left: 1em;
-  white-space: pre-wrap;
+  margin-bottom: 0px;
+  padding-left: 12%;
+}
+#ytResults li h5 {
+  padding-left: 12%;
+}
+#ytResults li button {
+  margin: 0px;
+  padding: 0px 15px 0px 15px;
+}
+
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
 }

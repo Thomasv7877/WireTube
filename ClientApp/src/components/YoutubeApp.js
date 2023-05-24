@@ -64,12 +64,11 @@ export function YoutubeApp(){
         {
             var vidLink = `https://www.youtube.com/watch?v=${result.id.videoId}`;
         return (
-          <li key={result.id.videoId}>
+          <li key={result.id.videoId} className="clearfix">
             <a href={vidLink}><img src={result.snippet.thumbnails.default.url} alt={result.snippet.title}></img></a>
-            <p>{result.snippet.title}</p>
+            <h5>{result.snippet.title}</h5>
+            <p>{result.snippet.channelTitle} - {formatViews(result.views)} views</p>
             <button type="button" className="btn" onClick={() => handleDownload(vidLink)}><i className="icon bi-download"></i></button>
-            <p>Views: {result.views}</p>
-            <p>Channel: {result.snippet.channelTitle}</p>
             </li>
         )})}
       </ul>) : (<div className="spinner-grow text-primary m-5" role="status">
@@ -77,6 +76,16 @@ export function YoutubeApp(){
 </div>)}
         </>
     );
+}
+
+function formatViews(views){
+  if(views > 1000000){
+    return parseInt(Math.round(views / 1000000)) + " mln.";
+  } else if (views > 1000){
+    return parseInt(Math.round(views / 1000)) + "k";
+  } else {
+    return views;
+  }
 }
 /*
 https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=lil xan colorblind&type=video&key=AIzaSyDnMozDltngJNf45Dnel-Xxo1Gm-Q0_uUU
