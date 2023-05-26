@@ -12,6 +12,7 @@ using System.Diagnostics;
 //using System.Timers;
 //using TagLib;
 using TagLib;
+using WebApi.Services;
 
 namespace WebApi.Services;
 
@@ -58,6 +59,16 @@ public class YtDlService {
         process.WaitForExit();
 
         Console.WriteLine(output);
+    }
+    public void ripAudioWProgress (string vidUrl){
+        string command = $"--newline --no-warnings --no-call-home -o \"{_saveFolder}/%(title)s - %(artist)s.%(ext)s\" -x -r 100k --add-metadata {vidUrl}";
+        Console.WriteLine(command);
+        var downloader = new YtDlServiceWProgress();
+        downloader.DownloadProgressChanged += progress =>
+        {
+            Console.WriteLine($"Progress: {progress}%");
+        };
+        downloader.DownloadVideo(command);
     }
     public IEnumerable<dynamic> getTracks(){
         var extensions = new string[]{".opus", ".mp3", ".ogg", ".wav"};
