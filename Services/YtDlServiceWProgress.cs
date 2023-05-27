@@ -34,16 +34,19 @@ public class YtDlServiceWProgress
         {
             // Parse the output to extract the progress value
             string output = e.Data;
-            if (output.Contains("Downloading") && output.Contains("%"))
+            //Console.WriteLine($"Raw progress output: {output} %");
+            if (output.Contains("download") && output.Contains("%"))
             {
-                int startIndex = output.IndexOf("Downloading") + 12;
-                int endIndex = output.IndexOf("%");
+                int startIndex = output.IndexOf("download") + 10;
+                int endIndex = output.IndexOf("% of ~") - 2;
                 if (startIndex >= 0 && endIndex >= 0)
                 {
                     string progressString = output.Substring(startIndex, endIndex - startIndex).Trim();
+                    //Console.WriteLine($"Trimmed output: {progressString} %");
                     if (int.TryParse(progressString, out int progress))
                     {
                         // Raise the DownloadProgressChanged event
+                        //Console.WriteLine($"Progress: {progress} %");
                         DownloadProgressChanged?.Invoke(progress);
                     }
                 }

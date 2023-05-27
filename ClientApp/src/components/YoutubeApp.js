@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 //import { Download, Envelope } from "bootstrap-icons/icons";
 import '../custom.css'
 
@@ -51,6 +51,55 @@ export function YoutubeApp(){
         handleSearch();
       }
     }
+
+    /*const handleEvent = (event) => {
+      console.log('Received event:', event.data);
+      // Process the event data as needed
+    };
+
+    useEffect(() => {
+      const eventSource = new EventSource('/ytApi/dlprogresssocket');
+    
+      eventSource.addEventListener('update', handleEvent);
+      eventSource.addEventListener('error', (error) => {
+        console.error('SSE error:', error);
+      });
+    
+      return () => {
+        eventSource.close(); // Clean up the EventSource instance when the component is unmounted
+      };
+    }, []);*/
+
+    /*useEffect(() => {
+      // Establish WebSocket connection to SSE endpoint
+      const socket = new WebSocket('/ytApi/dlprogresssocket');
+  
+      // Handle incoming progress updates
+      socket.onmessage = (event) => {
+        //const progress = JSON.parse(event.data);
+        // Update your React component state or UI based on progress
+        console.log("got something..");
+      };
+  
+      // Clean up the WebSocket connection
+      return () => {
+        socket.close();
+      };
+    }, []);*/
+
+    useEffect(() => {
+      const eventSource = new EventSource('/ytApi/dlprogresssocket');
+      eventSource.addEventListener('update', (event) => {
+        //const eventData = JSON.parse(event.data);
+        // Process the received event data (e.g., update UI)
+        console.log("got something..");
+      });
+      eventSource.addEventListener('error', (event) => {
+        const eventData = JSON.parse(event.data);
+        // Process the received event data (e.g., update UI)
+        console.log("something went wrong..");
+      });
+    }, []);
 
     return(
         <>
