@@ -25,6 +25,7 @@ public class YtDlService {
     //private AudioFileReader _audioFile;
     //private Player _player;
     //private System.Timers.Timer _timer;
+    //private YtDlServiceWProgress _ytDlServiceWProgress;
 
     public YtDlService(IOptions<AppSettings> appSettingsOptions)
     {
@@ -33,6 +34,7 @@ public class YtDlService {
         //_outputDevice = new WaveOutEvent();
         _playbackProgressModel = new PlaybackProgressModel();
         //_timer = new System.Timers.Timer(1000);
+        //_ytDlServiceWProgress = ytDlServiceWProgress;
 
     }
     public void ripAudio (string vidUrl){
@@ -60,15 +62,15 @@ public class YtDlService {
 
         Console.WriteLine(output);
     }
-    public void ripAudioWProgress (string vidUrl){
+    public void ripAudioWProgress (string vidUrl, YtDlServiceWProgress ytDlServiceWProgress){
         string command = $"--newline --no-warnings --no-call-home -o \"{_saveFolder}/%(title)s - %(artist)s.%(ext)s\" -x -r 100k --add-metadata {vidUrl}";
         Console.WriteLine(command);
-        var downloader = new YtDlServiceWProgress();
-        downloader.DownloadProgressChanged += progress =>
+        //var downloader = new YtDlServiceWProgress();
+        ytDlServiceWProgress.DownloadProgressChanged += progress =>
         {
             Console.WriteLine($"Progress: {progress}%");
         };
-        downloader.DownloadVideo(command);
+        ytDlServiceWProgress.DownloadVideo(command);
     }
     public IEnumerable<dynamic> getTracks(){
         var extensions = new string[]{".opus", ".mp3", ".ogg", ".wav"};

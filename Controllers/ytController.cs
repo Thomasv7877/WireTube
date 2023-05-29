@@ -13,13 +13,15 @@ public class YtApiController : ControllerBase
 {
     private readonly ILogger<TriggerController> _logger;
     private readonly YtDlService _ytDlService;
+    private YtDlServiceWProgress _ytDlServiceWProgress;
     private static readonly ConcurrentDictionary<string, SSEClient> Clients = new ConcurrentDictionary<string, SSEClient>();
     private static readonly Timer Timer = new Timer(SendUpdate, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
 
-    public YtApiController(ILogger<TriggerController> logger, YtDlService ytDlService)
+    public YtApiController(ILogger<TriggerController> logger, YtDlService ytDlService, YtDlServiceWProgress ytDlServiceWProgress)
     {
         _logger = logger;
         _ytDlService = ytDlService;
+        _ytDlServiceWProgress = ytDlServiceWProgress;
     }
 
     [HttpGet("tracks")]
@@ -46,7 +48,7 @@ public class YtApiController : ControllerBase
     public IActionResult PostSongUrl([FromBody] string url){
         Console.WriteLine("Downloading: " + url);
         //_ytDlService.ripAudio(url);
-        _ytDlService.ripAudioWProgress(url);
+        _ytDlService.ripAudioWProgress(url, _ytDlServiceWProgress);
         return Ok(new { message = "Worked fine" });
     }
     [HttpGet] // [HttpGet("play")]
@@ -165,7 +167,49 @@ public class YtApiController : ControllerBase
                 await response.Body.FlushAsync();
             }
     }
+    [HttpGet]
+    [Route("dlprogress")]
+    public async Task GetProgress()
+    {
+        var context = HttpContext;
 
+        // Set the response headers for SSE
+        context.Response.Headers.Add("Content-Type", "text/event-stream");
+        context.Response.Headers.Add("Cache-Control", "no-cache");
+        context.Response.Headers.Add("Connection", "keep-alive");
+        context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+
+        // Create a CancellationToken to stop the SSE connection if needed
+        var cancellationToken = context.RequestAborted;
+
+        // Subscribe to the ProgressChanged event
+        Action<int> progressHandler = async (progress) =>
+        {
+            var eventData = $"data: {progress}\n\n";
+            Console.WriteLine("Writing progress: " + progress);
+            // Write the SSE data to the response
+            await context.Response.WriteAsync(eventData);
+
+            // Flush the response to ensure immediate transmission
+            await context.Response.Body.FlushAsync();
+        };
+
+        _ytDlServiceWProgress.DownloadProgressChanged += progressHandler;
+
+        try
+        {
+            // Keep the SSE connection open until it is canceled
+            cancellationToken.WaitHandle.WaitOne();
+            while(!cancellationToken.IsCancellationRequested){
+                await Task.Delay(1000);
+            }
+        }
+        finally
+        {
+            // Unsubscribe from the ProgressChanged event
+            _ytDlServiceWProgress.DownloadProgressChanged -= progressHandler;
+        }
+    }
 
     }
     

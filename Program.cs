@@ -34,6 +34,7 @@ builder.Services.AddSwaggerGen();
     services.AddScoped<IUserRepository, UserRepository>();
     services.AddScoped<ApplicationDbSeeder>();
     services.AddScoped<YtDlService>();
+    services.AddScoped<YtDlServiceWProgress>();
     
 }
 
