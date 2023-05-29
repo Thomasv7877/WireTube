@@ -102,7 +102,7 @@ export function YoutubeApp(){
     }, []);*/
 
     useEffect(() => {
-      const eventSource = new EventSource('/ytApi/ssetest');
+      const eventSource = new EventSource('/ytApi/dlprogresssocket');
   
       eventSource.onmessage = (event) => {
         const message = event.data;

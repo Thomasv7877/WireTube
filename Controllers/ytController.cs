@@ -77,18 +77,20 @@ public class YtApiController : ControllerBase
     }
     [HttpGet]
     [Route("dlprogresssocket")]
-    public IActionResult SSE()
+    public async Task<IActionResult> SSE()
     {
         
         var response = HttpContext.Response;
         response.Headers.Add("Content-Type", "text/event-stream");
         response.Headers.Add("Cache-Control", "no-cache");
         response.Headers.Add("Connection", "keep-alive");
-        response.Headers.Add("Access-Control-Allow-Origin", "*");
+        //response.Headers.Add("Access-Control-Allow-Origin", "*");
 
         var client = new SSEClient(response);
         Clients.TryAdd(client.Id, client);
         Console.WriteLine("Attempting client connection in socket.. with client present? " + Clients.Count);
+
+        await Task.Delay(10000);        
 
         response.OnCompleted(() =>
         {
@@ -96,30 +98,8 @@ public class YtApiController : ControllerBase
             Console.WriteLine("Disposed of client");
             return Task.CompletedTask;
         });
-
+        Timer.Dispose();
         return new EmptyResult();
-    }
-
-    [HttpGet]
-    [Route("ssetest")]
-    public async Task SSETest(){
-
-            var response = HttpContext.Response;
-            response.Headers.Add("Content-Type", "text/event-stream");
-            response.Headers.Add("Cache-Control", "no-cache");
-            response.Headers.Add("Connection", "keep-alive");
-            response.Headers.Add("Access-Control-Allow-Origin", "*");
-
-            // Simulate progress updates (replace with your own logic)
-            for (int i = 0; i < 10; i++)
-            {
-                await Task.Delay(1000); // Simulate delay between updates
-
-                var message = $"Progress: {i * 10}%\n\n";
-
-                await response.WriteAsync("data: test\n\n");
-                await response.Body.FlushAsync();
-            }
     }
 
     private static void SendUpdate(object state)
@@ -153,15 +133,39 @@ public class YtApiController : ControllerBase
             Id = Guid.NewGuid().ToString();
         }
 
-        public void Send(string data)
+        public async void Send(string data)
         {
             Console.WriteLine("Sent some data..");
-            //_response.WriteAsync($"event: update\n");
-            //_response.WriteAsync($"id: {_eventId++}\n");
-            //_response.WriteAsync($"data: {data}\n\n");
-            _response.WriteAsync("data: test\n\n");
-            _response.Body.Flush();
+            await _response.WriteAsync($"event: update\n");
+            await _response.WriteAsync($"id: {_eventId++}\n");
+            await _response.WriteAsync($"data: {data}\n\n");
+            //await _response.WriteAsync("data: test\n\n");
+            await _response.Body.FlushAsync();
         }
     }
+
+     [HttpGet]
+    [Route("ssetest")]
+    public async Task SSETest(){
+
+            var response = HttpContext.Response;
+            response.Headers.Add("Content-Type", "text/event-stream");
+            response.Headers.Add("Cache-Control", "no-cache");
+            response.Headers.Add("Connection", "keep-alive");
+            response.Headers.Add("Access-Control-Allow-Origin", "*");
+
+            // Simulate progress updates (replace with your own logic)
+            for (int i = 0; i < 10; i++)
+            {
+                await Task.Delay(1000); // Simulate delay between updates
+
+                var message = $"Progress: {i * 10}%\n\n";
+
+                await response.WriteAsync("data: test\n\n");
+                await response.Body.FlushAsync();
+            }
+    }
+
+
+    }
     
-}
