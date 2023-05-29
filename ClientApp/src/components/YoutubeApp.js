@@ -87,7 +87,7 @@ export function YoutubeApp(){
       };
     }, []);*/
 
-    useEffect(() => {
+    /*useEffect(() => {
       const eventSource = new EventSource('/ytApi/dlprogresssocket');
       eventSource.addEventListener('update', (event) => {
         //const eventData = JSON.parse(event.data);
@@ -95,10 +95,24 @@ export function YoutubeApp(){
         console.log("got something..");
       });
       eventSource.addEventListener('error', (event) => {
-        const eventData = JSON.parse(event.data);
+        //const eventData = JSON.parse(event.data);
         // Process the received event data (e.g., update UI)
-        console.log("something went wrong..");
+        console.log("something went wrong.." + event);
       });
+    }, []);*/
+
+    useEffect(() => {
+      const eventSource = new EventSource('/ytApi/ssetest');
+  
+      eventSource.onmessage = (event) => {
+        const message = event.data;
+        console.log('Received SSE message:', message);
+        // Handle the SSE message as needed
+      };
+  
+      return () => {
+        eventSource.close();
+      };
     }, []);
 
     return(

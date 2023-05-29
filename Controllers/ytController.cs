@@ -3,6 +3,7 @@ using WebApi.Services;
 using Newtonsoft.Json;
 
 using System.Collections.Concurrent;
+using System.Text;
 
 namespace dotnet_react_xml_generator.Controllers;
 
@@ -78,33 +79,65 @@ public class YtApiController : ControllerBase
     [Route("dlprogresssocket")]
     public IActionResult SSE()
     {
+        
         var response = HttpContext.Response;
         response.Headers.Add("Content-Type", "text/event-stream");
         response.Headers.Add("Cache-Control", "no-cache");
         response.Headers.Add("Connection", "keep-alive");
+        response.Headers.Add("Access-Control-Allow-Origin", "*");
 
         var client = new SSEClient(response);
         Clients.TryAdd(client.Id, client);
+        Console.WriteLine("Attempting client connection in socket.. with client present? " + Clients.Count);
 
         response.OnCompleted(() =>
         {
             Clients.TryRemove(client.Id, out _);
+            Console.WriteLine("Disposed of client");
             return Task.CompletedTask;
         });
 
         return new EmptyResult();
     }
 
+    [HttpGet]
+    [Route("ssetest")]
+    public async Task SSETest(){
+
+            var response = HttpContext.Response;
+            response.Headers.Add("Content-Type", "text/event-stream");
+            response.Headers.Add("Cache-Control", "no-cache");
+            response.Headers.Add("Connection", "keep-alive");
+            response.Headers.Add("Access-Control-Allow-Origin", "*");
+
+            // Simulate progress updates (replace with your own logic)
+            for (int i = 0; i < 10; i++)
+            {
+                await Task.Delay(1000); // Simulate delay between updates
+
+                var message = $"Progress: {i * 10}%\n\n";
+
+                await response.WriteAsync("data: test\n\n");
+                await response.Body.FlushAsync();
+            }
+    }
+
     private static void SendUpdate(object state)
     {
+        Console.WriteLine("Ran Timer callback");
         var update = new { Message = "Progress update", Progress = DateTime.Now.Millisecond };
         //string message = "event: eventName\ndata: This is the message data\n";
         var serializedUpdate = JsonConvert.SerializeObject(update);
 
         foreach (var client in Clients.Values)
         {
+            Console.WriteLine("Client present");
             client.Send(serializedUpdate);
         }
+    }
+
+    private static void SendUpdateTest(object state){
+        Console.WriteLine("Test timer callback");
     }
 
     private class SSEClient
@@ -122,9 +155,11 @@ public class YtApiController : ControllerBase
 
         public void Send(string data)
         {
-            //_response.WriteAsync($"event: update,\n");
-            _response.WriteAsync($"event: update\ndata: testData\n\n");
-            //_response.WriteAsync($"id: {_eventId++}\n\n");
+            Console.WriteLine("Sent some data..");
+            //_response.WriteAsync($"event: update\n");
+            //_response.WriteAsync($"id: {_eventId++}\n");
+            //_response.WriteAsync($"data: {data}\n\n");
+            _response.WriteAsync("data: test\n\n");
             _response.Body.Flush();
         }
     }
