@@ -31,13 +31,15 @@ export function YoutubeApp(){
         }
       };
 
-    const handleDownload = async (vidUrl) => {
+    const handleDownload = async (vidUrl, vidTitle) => {
       setSearchResults([]);
       try {
-        const response = await fetch("/ytApi", {
+        const response = await fetch("/ytApi/dl", {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(vidUrl)
+          body: JSON.stringify({
+            url: vidUrl, 
+            title: vidTitle})
             });
         const data = await response.json();
         console.log(data);
@@ -131,7 +133,7 @@ export function YoutubeApp(){
             <a href={vidLink}><img src={result.snippet.thumbnails.default.url} alt={result.snippet.title}></img></a>
             <h5>{result.snippet.title}</h5>
             <p>{result.snippet.channelTitle} - {formatViews(result.views)} views</p>
-            <button type="button" className="btn" onClick={() => handleDownload(vidLink)}><i className="icon bi-download"></i></button>
+            <button type="button" className="btn" onClick={() => handleDownload(vidLink, result.snippet.title)}><i className="icon bi-download"></i></button>
             </li>
         )})}
       </ul>) : (<div className="spinner-grow text-primary m-5" role="status">

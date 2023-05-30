@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 
 using System.Collections.Concurrent;
 using System.Text;
+using System.Text.Json;
 
 namespace dotnet_react_xml_generator.Controllers;
 
@@ -13,15 +14,15 @@ public class YtApiController : ControllerBase
 {
     private readonly ILogger<TriggerController> _logger;
     private readonly YtDlService _ytDlService;
-    private YtDlServiceWProgress _ytDlServiceWProgress;
+    //private YtDlServiceWProgress _ytDlServiceWProgress;
     private static readonly ConcurrentDictionary<string, SSEClient> Clients = new ConcurrentDictionary<string, SSEClient>();
-    private static readonly Timer Timer = new Timer(SendUpdate, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+    //private static readonly Timer Timer = new Timer(SendUpdate, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
 
-    public YtApiController(ILogger<TriggerController> logger, YtDlService ytDlService, YtDlServiceWProgress ytDlServiceWProgress)
+    public YtApiController(ILogger<TriggerController> logger, YtDlService ytDlService)
     {
         _logger = logger;
         _ytDlService = ytDlService;
-        _ytDlServiceWProgress = ytDlServiceWProgress;
+        //_ytDlServiceWProgress = ytDlServiceWProgress;
     }
 
     [HttpGet("tracks")]
@@ -44,11 +45,13 @@ public class YtApiController : ControllerBase
         //Console.WriteLine(tracks);
         return tracks;
     }
-    [HttpPost]
-    public IActionResult PostSongUrl([FromBody] string url){
-        Console.WriteLine("Downloading: " + url);
+    [HttpPost("dl")]
+    public IActionResult PostSongUrl([FromBody] JsonElement dlItem){
+        string url = dlItem.GetProperty("url").GetString();
+        string title = dlItem.GetProperty("title").GetString();
+        Console.WriteLine("Downloading vid: " + url + "\nwith title:"  + title);
         //_ytDlService.ripAudio(url);
-        _ytDlService.ripAudioWProgress(url, _ytDlServiceWProgress);
+        _ytDlService.ripAudioWProgress(url, title);
         return Ok(new { message = "Worked fine" });
     }
     [HttpGet] // [HttpGet("play")]
@@ -78,7 +81,7 @@ public class YtApiController : ControllerBase
         return new FileStreamResult(fileStream, contentType);
     }
     [HttpGet]
-    [Route("dlprogresssocket")]
+    [Route("dlprogress")]
     public async Task<IActionResult> SSE()
     {
         
@@ -92,22 +95,30 @@ public class YtApiController : ControllerBase
         Clients.TryAdd(client.Id, client);
         Console.WriteLine("Attempting client connection in socket.. with client present? " + Clients.Count);
 
-        await Task.Delay(10000);        
-
+        while(_ytDlService.ActiveDownloads() > 0){
+        //Console.WriteLine("Running progress loop, actieve dl's: " + _ytDlService.ActiveDownloads());
+        if(_ytDlService.ActiveDownloads() > 0){
+            _ytDlService.progressList.ForEach( activedl => {
+            SendUpdate((int) activedl._progress, activedl._vidTitle);
+            });
+        }
+            await Task.Delay(1000);
+        }
+              
         response.OnCompleted(() =>
         {
             Clients.TryRemove(client.Id, out _);
             Console.WriteLine("Disposed of client");
             return Task.CompletedTask;
         });
-        Timer.Dispose();
+        //Timer.Dispose();
         return new EmptyResult();
     }
 
-    private static void SendUpdate(object state)
+    private static void SendUpdate(int progress, string title)
     {
         Console.WriteLine("Ran Timer callback");
-        var update = new { Message = "Progress update", Progress = DateTime.Now.Millisecond };
+        var update = new { Message = "Progress update", Progress = progress , Title = title};
         //string message = "event: eventName\ndata: This is the message data\n";
         var serializedUpdate = JsonConvert.SerializeObject(update);
 
@@ -167,8 +178,9 @@ public class YtApiController : ControllerBase
                 await response.Body.FlushAsync();
             }
     }
+    /* // event handler voor progress, wait op cancellation token ipv loop wait -> werkt niet
     [HttpGet]
-    [Route("dlprogress")]
+    [Route("dlprogressalt")]
     public async Task GetProgress()
     {
         var context = HttpContext;
@@ -209,7 +221,7 @@ public class YtApiController : ControllerBase
             // Unsubscribe from the ProgressChanged event
             _ytDlServiceWProgress.DownloadProgressChanged -= progressHandler;
         }
-    }
+    }*/
 
     }
     

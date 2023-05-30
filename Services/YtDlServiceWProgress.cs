@@ -5,6 +5,13 @@ using System.IO;
 public class YtDlServiceWProgress
 {
     public event Action<int> DownloadProgressChanged;
+    public int? _progress;
+    public string? _vidTitle;
+
+    public YtDlServiceWProgress(string vidTitle){
+        _vidTitle = vidTitle;
+        _progress = 0;
+    }
 
     public void DownloadVideo(string ytDlpArgs)
     {

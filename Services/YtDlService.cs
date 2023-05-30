@@ -25,7 +25,7 @@ public class YtDlService {
     //private AudioFileReader _audioFile;
     //private Player _player;
     //private System.Timers.Timer _timer;
-    //private YtDlServiceWProgress _ytDlServiceWProgress;
+    public List<YtDlServiceWProgress> progressList;
 
     public YtDlService(IOptions<AppSettings> appSettingsOptions)
     {
@@ -35,6 +35,7 @@ public class YtDlService {
         _playbackProgressModel = new PlaybackProgressModel();
         //_timer = new System.Timers.Timer(1000);
         //_ytDlServiceWProgress = ytDlServiceWProgress;
+        progressList = new List<YtDlServiceWProgress>();
 
     }
     public void ripAudio (string vidUrl){
@@ -62,15 +63,17 @@ public class YtDlService {
 
         Console.WriteLine(output);
     }
-    public void ripAudioWProgress (string vidUrl, YtDlServiceWProgress ytDlServiceWProgress){
+    public void ripAudioWProgress (string vidUrl, string vidTitle){
         string command = $"--newline --no-warnings --no-call-home -o \"{_saveFolder}/%(title)s - %(artist)s.%(ext)s\" -x -r 100k --add-metadata {vidUrl}";
         Console.WriteLine(command);
-        //var downloader = new YtDlServiceWProgress();
-        ytDlServiceWProgress.DownloadProgressChanged += progress =>
+        var downloader = new YtDlServiceWProgress(vidTitle);
+        progressList.Add(downloader);
+        Console.WriteLine("Lengte van lijst: " + progressList.Count);
+        downloader.DownloadProgressChanged += (progress) =>
         {
-            Console.WriteLine($"Progress: {progress}%");
+            Console.WriteLine($"Progress: {progress}% voor vid {vidTitle}");
         };
-        ytDlServiceWProgress.DownloadVideo(command);
+        downloader.DownloadVideo(command);
     }
     public IEnumerable<dynamic> getTracks(){
         var extensions = new string[]{".opus", ".mp3", ".ogg", ".wav"};
@@ -136,7 +139,9 @@ public class YtDlService {
                     return null; // Unsupported file extension
             }
         }
-
+    public int ActiveDownloads(){
+        return progressList.ToArray().Length;
+    }
 /*
     public void PlaySong(string fileName){
 
