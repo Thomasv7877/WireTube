@@ -17,6 +17,7 @@ public class YtApiController : ControllerBase
     //private YtDlServiceWProgress _ytDlServiceWProgress;
     private static readonly ConcurrentDictionary<string, SSEClient> Clients = new ConcurrentDictionary<string, SSEClient>();
     //private static readonly Timer Timer = new Timer(SendUpdate, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+    private readonly Queue<string> _eventQueue = new Queue<string>();
 
     public YtApiController(ILogger<TriggerController> logger, YtDlService ytDlService)
     {
@@ -46,12 +47,20 @@ public class YtApiController : ControllerBase
         return tracks;
     }
     [HttpPost("dl")]
-    public IActionResult PostSongUrl([FromBody] JsonElement dlItem){
+    public async Task<IActionResult> PostSongUrl([FromBody] JsonElement dlItem){
         string url = dlItem.GetProperty("url").GetString();
         string title = dlItem.GetProperty("title").GetString();
         Console.WriteLine("Downloading vid: " + url + "\nwith title:"  + title);
         //_ytDlService.ripAudio(url);
-        _ytDlService.ripAudioWProgress(url, title);
+        var downloader = new YtDlServiceWProgress(title);
+        downloader.DownloadProgressChanged += (progress) =>
+        {
+            string pgstr = $"Progress: {progress}% voor vid {downloader._vidTitle}";
+            Console.WriteLine(pgstr);
+            _eventQueue.Enqueue(pgstr);
+            SendUpdate(downloader._vidTitle, progress);
+        };
+        await _ytDlService.ripAudioWProgress(url, downloader);
         return Ok(new { message = "Worked fine" });
     }
     [HttpGet] // [HttpGet("play")]
@@ -84,7 +93,6 @@ public class YtApiController : ControllerBase
     [Route("dlprogress")]
     public async Task<IActionResult> SSE()
     {
-        
         var response = HttpContext.Response;
         response.Headers.Add("Content-Type", "text/event-stream");
         response.Headers.Add("Cache-Control", "no-cache");
@@ -95,30 +103,32 @@ public class YtApiController : ControllerBase
         Clients.TryAdd(client.Id, client);
         Console.WriteLine("Attempting client connection in socket.. with client present? " + Clients.Count);
 
-        while(_ytDlService.ActiveDownloads() > 0){
+        while(true){
         //Console.WriteLine("Running progress loop, actieve dl's: " + _ytDlService.ActiveDownloads());
-        if(_ytDlService.ActiveDownloads() > 0){
-            _ytDlService.progressList.ForEach( activedl => {
+        if (_eventQueue.TryDequeue(out var eventData)){
+            /*_ytDlService.progressList.ForEach( activedl => {
             SendUpdate((int) activedl._progress, activedl._vidTitle);
-            });
+            });*/
+            Console.WriteLine("Dequeue worked!");
+            //SendUpdate(eventData);
         }
-            await Task.Delay(1000);
+            await Task.Delay(5000);
         }
               
-        response.OnCompleted(() =>
+        /*response.OnCompleted(() =>
         {
             Clients.TryRemove(client.Id, out _);
             Console.WriteLine("Disposed of client");
             return Task.CompletedTask;
         });
         //Timer.Dispose();
-        return new EmptyResult();
+        return new EmptyResult();*/
     }
 
-    private static void SendUpdate(int progress, string title)
+    private static void SendUpdate(string title, int progress)
     {
-        Console.WriteLine("Ran Timer callback");
-        var update = new { Message = "Progress update", Progress = progress , Title = title};
+        //Console.WriteLine("Ran Timer callback");
+        var update = new { Title = title, Progress = progress};
         //string message = "event: eventName\ndata: This is the message data\n";
         var serializedUpdate = JsonConvert.SerializeObject(update);
 

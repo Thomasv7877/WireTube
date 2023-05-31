@@ -63,17 +63,17 @@ public class YtDlService {
 
         Console.WriteLine(output);
     }
-    public void ripAudioWProgress (string vidUrl, string vidTitle){
+    public async Task ripAudioWProgress (string vidUrl, YtDlServiceWProgress downloader){
         string command = $"--newline --no-warnings --no-call-home -o \"{_saveFolder}/%(title)s - %(artist)s.%(ext)s\" -x -r 100k --add-metadata {vidUrl}";
         Console.WriteLine(command);
-        var downloader = new YtDlServiceWProgress(vidTitle);
+        //var downloader = new YtDlServiceWProgress(vidTitle);
         progressList.Add(downloader);
         Console.WriteLine("Lengte van lijst: " + progressList.Count);
-        downloader.DownloadProgressChanged += (progress) =>
+        /*downloader.DownloadProgressChanged += (progress) =>
         {
-            Console.WriteLine($"Progress: {progress}% voor vid {vidTitle}");
-        };
-        downloader.DownloadVideo(command);
+            Console.WriteLine($"Progress: {progress}% voor vid {downloader._vidTitle}");
+        };*/
+        await downloader.DownloadVideoDummy(command);
     }
     public IEnumerable<dynamic> getTracks(){
         var extensions = new string[]{".opus", ".mp3", ".ogg", ".wav"};
@@ -140,7 +140,7 @@ public class YtDlService {
             }
         }
     public int ActiveDownloads(){
-        return progressList.ToArray().Length;
+        return progressList.Count;
     }
 /*
     public void PlaySong(string fileName){

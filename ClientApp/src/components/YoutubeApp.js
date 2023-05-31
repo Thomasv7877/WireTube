@@ -22,6 +22,8 @@ export function YoutubeApp(){
             const subData = await subResponse.json();
             //console.log(subData.items[0].statistics.viewCount);
             data.items[i]['views'] = subData.items[0].statistics.viewCount;
+            data.items[i]['downloading'] = false;
+            data.items[i]['dlProgress'] = 0;
           }
           //console.log(data.items[0]);
           setSearchResults(data.items);
@@ -32,7 +34,7 @@ export function YoutubeApp(){
       };
 
     const handleDownload = async (vidUrl, vidTitle) => {
-      setSearchResults([]);
+      //setSearchResults([]);
       try {
         const response = await fetch("/ytApi/dl", {
           method: 'POST',
@@ -89,21 +91,25 @@ export function YoutubeApp(){
       };
     }, []);*/
 
-    /*useEffect(() => {
-      const eventSource = new EventSource('/ytApi/dlprogresssocket');
+    useEffect(() => {
+      const eventSource = new EventSource('/ytApi/dlprogress');
       eventSource.addEventListener('update', (event) => {
-        //const eventData = JSON.parse(event.data);
+        const eventData = JSON.parse(event.data);
         // Process the received event data (e.g., update UI)
-        console.log("got something..");
+        console.log("got something.. title = " + eventData.Title + " progress = " + eventData.Progress);
+        searchResults.filter(obj => obj.snippet.title === eventData.Title).map(obj => {
+          obj.downloading = true;
+          obj.progress = eventData.Progress;
+        });
       });
       eventSource.addEventListener('error', (event) => {
         //const eventData = JSON.parse(event.data);
         // Process the received event data (e.g., update UI)
         console.log("something went wrong.." + event);
       });
-    }, []);*/
+    }, []);
 
-    useEffect(() => {
+    /*useEffect(() => {
       const eventSource = new EventSource('/ytApi/dlprogress');
   
       eventSource.onmessage = (event) => {
@@ -115,7 +121,7 @@ export function YoutubeApp(){
       return () => {
         eventSource.close();
       };
-    }, []);
+    }, []);*/
 
     return(
         <>
@@ -132,8 +138,8 @@ export function YoutubeApp(){
           <li key={result.id.videoId} className="clearfix">
             <a href={vidLink}><img src={result.snippet.thumbnails.default.url} alt={result.snippet.title}></img></a>
             <h5>{result.snippet.title}</h5>
-            <p>{result.snippet.channelTitle} - {formatViews(result.views)} views</p>
-            <button type="button" className="btn" onClick={() => handleDownload(vidLink, result.snippet.title)}><i className="icon bi-download"></i></button>
+            <p>{result.snippet.channelTitle} - {formatViews(result.views)} views <button type="button" className="btn" onClick={() => handleDownload(vidLink, result.snippet.title)}><i className="icon bi-download"></i></button></p>
+            <progress id="progressBar" value={result.progress} max='100' style={{visibility: 'visible' && result.downloading}}></progress>
             </li>
         )})}
       </ul>) : (<div className="spinner-grow text-primary m-5" role="status">

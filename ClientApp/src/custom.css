@@ -113,3 +113,8 @@ tr {
   display: table;
   clear: both;
 }
+#progressBar {
+  margin-left: 1em;
+  width: 25%;
+  visibility: hidden;
+}

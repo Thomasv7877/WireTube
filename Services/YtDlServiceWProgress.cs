@@ -35,6 +35,15 @@ public class YtDlServiceWProgress
         process.WaitForExit();
     }
 
+    public async Task DownloadVideoDummy(string ytDlpArgs){
+        for(var i = 0; i <= 100; i += 5){
+            _progress = i;
+            //Console.WriteLine($"Progress (manual): {_progress}% voor vid {_vidTitle}");
+            DownloadProgressChanged?.Invoke((int) _progress);
+            await Task.Delay(1000);
+        }
+    }
+
     private void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)
     {
         if (!string.IsNullOrEmpty(e.Data))
