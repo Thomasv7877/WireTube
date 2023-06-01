@@ -107,6 +107,9 @@ tr {
   margin: 0px;
   padding: 0px 15px 0px 15px;
 }
+#ytResults li button i {
+  vertical-align: middle;
+}
 
 .clearfix::after {
   content: "";
@@ -116,5 +119,5 @@ tr {
 #progressBar {
   margin-left: 1em;
   width: 25%;
-  visibility: hidden;
+  /*visibility: visible;*/
 }

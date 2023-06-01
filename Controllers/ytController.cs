@@ -16,6 +16,7 @@ public class YtApiController : ControllerBase
     private readonly YtDlService _ytDlService;
     //private YtDlServiceWProgress _ytDlServiceWProgress;
     private static readonly ConcurrentDictionary<string, SSEClient> Clients = new ConcurrentDictionary<string, SSEClient>();
+    private static SSEClient? _activeClient;
     //private static readonly Timer Timer = new Timer(SendUpdate, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
     private readonly Queue<string> _eventQueue = new Queue<string>();
 
@@ -61,6 +62,8 @@ public class YtApiController : ControllerBase
             SendUpdate(downloader._vidTitle, progress);
         };
         await _ytDlService.ripAudioWProgress(url, downloader);
+        //Clients.Clear();
+        //Console.WriteLine("Cleared clients");
         return Ok(new { message = "Worked fine" });
     }
     [HttpGet] // [HttpGet("play")]
@@ -99,8 +102,9 @@ public class YtApiController : ControllerBase
         response.Headers.Add("Connection", "keep-alive");
         //response.Headers.Add("Access-Control-Allow-Origin", "*");
 
-        var client = new SSEClient(response);
-        Clients.TryAdd(client.Id, client);
+        //var client = new SSEClient(response);
+        //Clients.TryAdd(client.Id, client);
+        _activeClient = new SSEClient(response);
         Console.WriteLine("Attempting client connection in socket.. with client present? " + Clients.Count);
 
         while(true){
@@ -132,11 +136,12 @@ public class YtApiController : ControllerBase
         //string message = "event: eventName\ndata: This is the message data\n";
         var serializedUpdate = JsonConvert.SerializeObject(update);
 
-        foreach (var client in Clients.Values)
+        /*foreach (var client in Clients.Values)
         {
             Console.WriteLine("Client present");
             client.Send(serializedUpdate);
-        }
+        }*/
+        _activeClient.Send(serializedUpdate);
     }
 
     private static void SendUpdateTest(object state){

@@ -13,7 +13,7 @@ public class YtDlServiceWProgress
         _progress = 0;
     }
 
-    public void DownloadVideo(string ytDlpArgs)
+    public async Task DownloadVideo(string ytDlpArgs)
     {
         // Set up the process start info
         var startInfo = new ProcessStartInfo

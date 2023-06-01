@@ -97,17 +97,21 @@ export function YoutubeApp(){
         const eventData = JSON.parse(event.data);
         // Process the received event data (e.g., update UI)
         console.log("got something.. title = " + eventData.Title + " progress = " + eventData.Progress);
-        searchResults.filter(obj => obj.snippet.title === eventData.Title).map(obj => {
+        // nieuwe array maken, wegens ondiepe vgl anders geen rerender getriggered
+        var newSearchResults = [...searchResults];
+        newSearchResults.filter(obj => obj.snippet.title === eventData.Title).forEach(obj => {
           obj.downloading = true;
           obj.progress = eventData.Progress;
+          //console.log("Found Song!");
         });
+        setSearchResults(newSearchResults);
       });
       eventSource.addEventListener('error', (event) => {
         //const eventData = JSON.parse(event.data);
         // Process the received event data (e.g., update UI)
         console.log("something went wrong.." + event);
       });
-    }, []);
+    }, [searchResults]);
 
     /*useEffect(() => {
       const eventSource = new EventSource('/ytApi/dlprogress');
@@ -138,8 +142,8 @@ export function YoutubeApp(){
           <li key={result.id.videoId} className="clearfix">
             <a href={vidLink}><img src={result.snippet.thumbnails.default.url} alt={result.snippet.title}></img></a>
             <h5>{result.snippet.title}</h5>
-            <p>{result.snippet.channelTitle} - {formatViews(result.views)} views <button type="button" className="btn" onClick={() => handleDownload(vidLink, result.snippet.title)}><i className="icon bi-download"></i></button></p>
-            <progress id="progressBar" value={result.progress} max='100' style={{visibility: 'visible' && result.downloading}}></progress>
+            <p>{result.snippet.channelTitle} - {formatViews(result.views)} views <button type="button" className="btn" onClick={() => handleDownload(vidLink, result.snippet.title)}><i className={formatButton(result.downloading, result.progress)}></i></button></p>
+            <progress id="progressBar" value={result.progress} max='100' style={{visibility: result.downloading ? 'visible' : 'hidden'}}></progress>
             </li>
         )})}
       </ul>) : (<div className="spinner-grow text-primary m-5" role="status">
@@ -156,6 +160,16 @@ function formatViews(views){
     return parseInt(Math.round(views / 1000)) + "k";
   } else {
     return views;
+  }
+}
+//{() => formatButton(result.downloading, result.progress)}
+function formatButton(downloading, progress){
+  if(downloading && progress === 100){
+    return "icon bi-check-lg";
+  } else if(downloading){
+    return "spinner-border spinner-border-sm";
+  } else {
+    return "icon bi-download";
   }
 }
 /*
