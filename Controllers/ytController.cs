@@ -66,6 +66,15 @@ public class YtApiController : ControllerBase
         //Console.WriteLine("Cleared clients");
         return Ok(new { message = "Worked fine" });
     }
+
+    [HttpPost("search")]
+    public async Task<IActionResult> searchytnoapi([FromBody] string url){
+        //Console.WriteLine("Handled url: " + url);
+        string? res =  await YtSearchService.searchYt(url);
+        //Console.WriteLine("Handled function: " + res);
+        return Ok(new {url = url});
+    }
+
     [HttpGet] // [HttpGet("play")]
     [Route("play")]
     public IActionResult PlayMusic(string fileName)

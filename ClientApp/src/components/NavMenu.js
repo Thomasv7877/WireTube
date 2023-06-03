@@ -35,7 +35,7 @@ export class NavMenu extends Component {
               <NavItem>
                 <NavLink tag={Link} className="text-dark" to="/YoutubePlay">Play</NavLink>
               </NavItem>
-              <NavItem>
+              {/*<NavItem>
                 <NavLink tag={Link} className="text-dark" to="/counter">Counter</NavLink>
               </NavItem>
               <NavItem>
@@ -43,6 +43,9 @@ export class NavMenu extends Component {
               </NavItem>
               <NavItem>
                 <NavLink tag={Link} className="text-dark" to="/gen-xml">Generate XML</NavLink>
+              </NavItem>*/}
+              <NavItem>
+                <NavLink tag={Link} className="text-dark" to="/About">About</NavLink>
               </NavItem>
               
             </ul>

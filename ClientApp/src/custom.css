@@ -28,6 +28,13 @@ code {
 #search-lib {
   margin-bottom: 15px;
 }
+#lib-title, .yt-search-wrapper{
+  margin-left: 5%;
+}
+nav .container {
+  margin-left: 2em;
+  margin-right: 2em;
+}
 #audio-library li:hover  {
     background-color: lightgray;
     cursor: default;
@@ -49,6 +56,18 @@ tr {
   display: block;
   width: 100%;
 }
+#media-control {
+  position: fixed;
+  bottom: 0;
+  width: 90%;
+  /*margin-left: 5%;*/
+}
+.container {
+  margin: 0;
+  padding: 0;
+  max-width: 100%;
+
+}
 #media-control button {
   background-color: #484848;
   color: #fff;
@@ -60,6 +79,7 @@ tr {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  margin: 0 5% 0 5%;
 }
 .scroll-pane {
   flex-grow: 1;
@@ -68,11 +88,7 @@ tr {
 #audio-library {
   height: 90vh
 }
-#media-control {
-  position: fixed;
-  bottom: 0;
-  width: 87%;
-}
+
 .shuffled {
   background-color: black;
 }
@@ -80,6 +96,7 @@ tr {
 #searchYt {
   width: 30%;
   margin-bottom: 1em;
+  margin-right: 1em;
 }
 .spinner-grow {
   display: block;

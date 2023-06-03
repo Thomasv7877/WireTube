@@ -1,15 +1,16 @@
 import { Counter } from "./components/Counter";
 import { FetchData } from "./components/FetchData";
-import { Home } from "./components/Home";
+//import { Home } from "./components/Home";
 import { GenXml } from "./components/GenXml";
 import { Login} from "./components/Login";
 import { YoutubeApp } from "./components/YoutubeApp";
 import { YoutubePlay } from "./components/YoutubePlay";
+import { About } from "./components/About";
 
 const AppRoutes = [
   {
     path: '/',
-    element: <Home />
+    element: <YoutubeApp />
   },
   {
     path: '/counter',
@@ -36,6 +37,10 @@ const AppRoutes = [
   {
     path: '/YoutubePlay',
     element: <YoutubePlay />
+  },
+  {
+    path: '/About',
+    element: <About />
   }
 ];
 

@@ -64,7 +64,7 @@ public class YtDlService {
         Console.WriteLine(output);
     }
     public async Task ripAudioWProgress (string vidUrl, YtDlServiceWProgress downloader){
-        string command = $"--newline --no-warnings --no-call-home -o \"{_saveFolder}/%(title)s - %(artist)s.%(ext)s\" -x -r 100k --add-metadata {vidUrl}";
+        string command = $"--newline --no-warnings --no-call-home -o \"{_saveFolder}/%(title)s - %(artist)s.%(ext)s\" -x -r 200k --add-metadata {vidUrl}";
         Console.WriteLine(command);
         //var downloader = new YtDlServiceWProgress(vidTitle);
         progressList.Add(downloader);

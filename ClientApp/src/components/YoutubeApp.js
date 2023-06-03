@@ -4,6 +4,7 @@ import '../custom.css'
 
 export function YoutubeApp(){
     const [searchTerm, setSearchTerm] = useState('');
+    const [searchTermAlt, setSearchTermAlt] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     //const apiKey = 'AIzaSyDnMozDltngJNf45Dnel-Xxo1Gm-Q0_uUU';
     const apiKey = process.env.react_app_yt_api_key;
@@ -33,6 +34,25 @@ export function YoutubeApp(){
         }
       };
 
+    const handleSearchNoAPI = async () => {
+      try {
+        setIsLoading(true);
+        console.log("Searched for " + searchTermAlt);
+        const yturl = `https://www.youtube.com/results?search_query=${searchTermAlt}`;
+        const options = {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(yturl)
+        }
+        const response = await fetch("/ytApi/search", options);
+        const data = await response.json();
+        console.log(data);
+        setIsLoading(false);
+      } catch (e){
+        console.error('Error:', e);
+      };
+    };
+
     const handleDownload = async (vidUrl, vidTitle) => {
       //setSearchResults([]);
       try {
@@ -53,6 +73,11 @@ export function YoutubeApp(){
     const handleKeyDown = (event) => {
       if(event.key === 'Enter'){
         handleSearch();
+      }
+    }
+    const handleKeyDownAlt = (event) => {
+      if(event.key === 'Enter'){
+        handleSearchNoAPI();
       }
     }
 
@@ -91,7 +116,8 @@ export function YoutubeApp(){
       };
     }, []);*/
 
-    useEffect(() => {
+    // socket open houden voor dl progress
+    /*useEffect(() => {
       const eventSource = new EventSource('/ytApi/dlprogress');
       eventSource.addEventListener('update', (event) => {
         const eventData = JSON.parse(event.data);
@@ -111,7 +137,7 @@ export function YoutubeApp(){
         // Process the received event data (e.g., update UI)
         console.log("something went wrong.." + event);
       });
-    }, [searchResults]);
+    }, [searchResults]);*/
 
     /*useEffect(() => {
       const eventSource = new EventSource('/ytApi/dlprogress');
@@ -128,9 +154,10 @@ export function YoutubeApp(){
     }, []);*/
 
     return(
-        <>
-        <p>Find something on youtube</p>
+        <div className="yt-search-wrapper">
+        <p id="search-title">Find something on youtube</p>
         <input id="searchYt" type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} onKeyDown={handleKeyDown} placeholder="Search songs..."/>
+        <input id="searchYt" type="text" value={searchTermAlt} onChange={e => setSearchTermAlt(e.target.value)} onKeyDown={handleKeyDownAlt} placeholder="Search songs... without API token"/>
         {/*<button type="button" className="btn btn-primary btn-sm" onClick={handleSearch}>Search</button>
         <button type="button" className="btn btn-primary" onClick={() => handlePostTest(testVar)}>Post test & Clear results</button>*/}
         {!isLoading ? (
@@ -149,7 +176,7 @@ export function YoutubeApp(){
       </ul>) : (<div className="spinner-grow text-primary m-5" role="status">
   <span className="sr-only">test</span>
 </div>)}
-        </>
+        </div>
     );
 }
 
