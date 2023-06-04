@@ -11,7 +11,7 @@ export function YoutubeApp(){
     const apiUrl = `https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${searchTerm}&type=video&key=${apiKey}`;
     const [searchResults, setSearchResults] = useState([]);
     //const testVar = "https://www.youtube.com/watch?v=1cBZcpSeiFc&pp=ygUTcGF5YmFjayBqYW1lcyBicm93bg%3D%3D";
-
+    
     const handleSearch = async () => {
         try {
           setIsLoading(true);
@@ -117,7 +117,7 @@ export function YoutubeApp(){
     }, []);*/
 
     // socket open houden voor dl progress
-    /*useEffect(() => {
+    useEffect(() => {
       const eventSource = new EventSource('/ytApi/dlprogress');
       eventSource.addEventListener('update', (event) => {
         const eventData = JSON.parse(event.data);
@@ -137,7 +137,11 @@ export function YoutubeApp(){
         // Process the received event data (e.g., update UI)
         console.log("something went wrong.." + event);
       });
-    }, [searchResults]);*/
+      /*return () => { // niet gebruiken anders gegarandeerd elke render nieuwe connectie
+        // Cleanup function to close the SSE connection
+        eventSource.close();
+      };*/
+    }, [searchResults]);
 
     /*useEffect(() => {
       const eventSource = new EventSource('/ytApi/dlprogress');

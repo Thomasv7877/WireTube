@@ -19,12 +19,14 @@ public class YtApiController : ControllerBase
     private static SSEClient? _activeClient;
     //private static readonly Timer Timer = new Timer(SendUpdate, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
     private readonly Queue<string> _eventQueue = new Queue<string>();
+    private readonly IHostApplicationLifetime _applicationLifetime;
 
-    public YtApiController(ILogger<TriggerController> logger, YtDlService ytDlService)
+    public YtApiController(ILogger<TriggerController> logger, YtDlService ytDlService, IHostApplicationLifetime applicationLifetime)
     {
         _logger = logger;
         _ytDlService = ytDlService;
         //_ytDlServiceWProgress = ytDlServiceWProgress;
+        _applicationLifetime = applicationLifetime;
     }
 
     [HttpGet("tracks")]
@@ -111,12 +113,13 @@ public class YtApiController : ControllerBase
         response.Headers.Add("Connection", "keep-alive");
         //response.Headers.Add("Access-Control-Allow-Origin", "*");
 
-        //var client = new SSEClient(response);
-        //Clients.TryAdd(client.Id, client);
         _activeClient = new SSEClient(response);
+        //Clients.TryAdd(_activeClient.Id, _activeClient);
         Console.WriteLine("Attempting client connection in socket.. with client present? " + Clients.Count);
 
-        while(true){
+        HandleShutdown();
+
+        while(_activeClient != null){
         //Console.WriteLine("Running progress loop, actieve dl's: " + _ytDlService.ActiveDownloads());
         if (_eventQueue.TryDequeue(out var eventData)){
             /*_ytDlService.progressList.ForEach( activedl => {
@@ -125,17 +128,18 @@ public class YtApiController : ControllerBase
             Console.WriteLine("Dequeue worked!");
             //SendUpdate(eventData);
         }
-            await Task.Delay(5000);
+            await Task.Delay(500);
         }
               
-        /*response.OnCompleted(() =>
+        response.OnCompleted(() =>
         {
-            Clients.TryRemove(client.Id, out _);
+            //Clients.TryRemove(_activeClient.Id, out _);
+            //_activeClient = null;
             Console.WriteLine("Disposed of client");
             return Task.CompletedTask;
         });
         //Timer.Dispose();
-        return new EmptyResult();*/
+        return new EmptyResult();
     }
 
     private static void SendUpdate(string title, int progress)
@@ -179,6 +183,11 @@ public class YtApiController : ControllerBase
             //await _response.WriteAsync("data: test\n\n");
             await _response.Body.FlushAsync();
         }
+        public async void CloseClient(){
+                await _response.Body.FlushAsync();
+                await _response.CompleteAsync();
+                _activeClient = null;
+        }
     }
 
      [HttpGet]
@@ -202,6 +211,28 @@ public class YtApiController : ControllerBase
                 await response.Body.FlushAsync();
             }
     }
+    
+    public IActionResult HandleShutdown()
+    {
+        Console.CancelKeyPress += Console_CancelKeyPress;
+        
+        Console.WriteLine("Ctrl+C signal handling registered.");
+        return Ok("Ctrl+C signal handling registered.");
+    }
+
+    private void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
+    {
+        if(_activeClient != null)
+        {
+        _activeClient.CloseClient();
+        }
+        _applicationLifetime.StopApplication();
+        Console.WriteLine("Stop logic called");
+        // Unregister the event handler
+        Console.CancelKeyPress -= Console_CancelKeyPress;
+    }
+
+
     /* // event handler voor progress, wait op cancellation token ipv loop wait -> werkt niet
     [HttpGet]
     [Route("dlprogressalt")]
