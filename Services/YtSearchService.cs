@@ -2,6 +2,8 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using System.Text.Json;
+using System.IO;
 
 namespace WebApi.Services;
 
@@ -39,14 +41,27 @@ public static class YtSearchService {
         List<HtmlNode> divs = await FetchDivsWithClassName(url, className);
 
         if(divs.Count > 0){
-        foreach (HtmlNode div in divs)
-        {
-            // Do something with each div
-            Console.WriteLine(div.InnerHtml);
-        }
+            /*foreach (HtmlNode div in divs)
+            {
+                // Do something with each div
+                Console.WriteLine(div.InnerHtml);
+            }*/
+            //Console.WriteLine(divs.Last().InnerHtml);
+            var filePath = "/home/thomas/Documenten/YtSearchService.json";
+
+            //string name = parsedObject["name"];
+            var pseudoJson = divs.Last().InnerHtml;
+            dynamic? jsonObject = JsonSerializer.Deserialize<dynamic>("{" + pseudoJson.Substring(21, pseudoJson.Length - 22));
+            //Console.WriteLine(jsonObject.ToString());
+            File.WriteAllText(filePath, jsonObject.ToString());
+
         } else {
             Console.WriteLine("Empty result");
         }
+
+        //dynamic? jsonObject = JsonSerializer.Deserialize<dynamic>(divs.Last().InnerHtml);
+        //dynamic title = jsonObject["title"];
+        //Console.WriteLine(jsonObject);
 
         return "OK";
     }
@@ -60,13 +75,17 @@ public static class YtSearchService {
     {
         string html = await httpClient.GetStringAsync(url);
 
-        HtmlDocument htmlDoc = new HtmlDocument();
-        htmlDoc.LoadHtml(html);
-        Console.WriteLine(htmlDoc.Text);
+        HtmlDocument doc = new HtmlDocument();
+        doc.LoadHtml(html);
+        //Console.WriteLine(doc.Text);
         // Select the specific divs by class name
         //.Where(div => div.GetAttributeValue("class", "") == className)
-        divs = htmlDoc.DocumentNode.Descendants("ytd-video-renderer")
-            .ToList();
+        //divs = htmlDoc.DocumentNode.Descendants("ytd-video-renderer").ToList();
+        //divs = doc.DocumentNode.Descendants("div").Where(div => div.GetAttributeValue("class", "").Contains("ytd-video-renderer")).ToList();
+        divs = doc.DocumentNode.Descendants("script").OrderBy(x => x.InnerHtml.Length).ToList();
+        
+        //divs = doc.DocumentNode.SelectNodes("//div[@class='yt-lockup-content']").ToList();
+        //divs.ForEach(div => Console.WriteLine(div.InnerHtml));
     }
     catch (Exception ex)
     {
