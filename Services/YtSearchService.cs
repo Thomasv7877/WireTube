@@ -50,10 +50,18 @@ public static class YtSearchService {
             var filePath = "/home/thomas/Documenten/YtSearchService.json";
 
             //string name = parsedObject["name"];
+            // largest script file has sezarch results
             var pseudoJson = divs.Last().InnerHtml;
-            dynamic? jsonObject = JsonSerializer.Deserialize<dynamic>("{" + pseudoJson.Substring(21, pseudoJson.Length - 22));
-            //Console.WriteLine(jsonObject.ToString());
-            File.WriteAllText(filePath, jsonObject.ToString());
+            // '{}' + substring of script content - var name and ';' at the end = parseable json object
+            int varLength = 20;
+            //dynamic? jsonObject = JsonSerializer.Deserialize<dynamic>(pseudoJson.Substring(varLength, pseudoJson.Length - (varLength + 1)));
+            //string somePart = jsonObject["responseContext"]["serviceTrackingParams"];
+            JsonDocument document = JsonDocument.Parse(pseudoJson.Substring(varLength, pseudoJson.Length - (varLength + 1)));
+            JsonElement root = document.RootElement;
+            string somePart = root.GetProperty("contents").GetProperty("twoColumnSearchResultsRenderer").GetProperty("primaryContents").GetProperty("sectionListRenderer").GetProperty("contents")[0].GetProperty("itemSectionRenderer").GetProperty("contents")[2].ToString();
+            //string somePart = root.GetProperty("responseContext").GetProperty("contents").ToString();
+            Console.WriteLine(somePart);
+            File.WriteAllText(filePath, document.RootElement.ToString());
 
         } else {
             Console.WriteLine("Empty result");
