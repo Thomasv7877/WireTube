@@ -71,10 +71,13 @@ public class YtApiController : ControllerBase
 
     [HttpPost("search")]
     public async Task<IActionResult> searchytnoapi([FromBody] string url){
-        //Console.WriteLine("Handled url: " + url);
-        string? res =  await YtSearchService.searchYt(url);
+        Console.WriteLine("Handled url: " + url);
+        //string? res =  await YtSearchService.searchYt(url);
+        IEnumerable<dynamic> response = await YtSearchService.searchYtAlt(url);
+        //await YtSearchService.searchYtTest(url);
         //Console.WriteLine("Handled function: " + res);
-        return Ok(new {url = url});
+        //return Ok(new {url = url});
+        return Ok(response);
     }
 
     [HttpGet] // [HttpGet("play")]

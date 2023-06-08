@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using HtmlAgilityPack;
 using System.Text.Json;
 using System.IO;
+using System.Dynamic;
 
 namespace WebApi.Services;
 
@@ -58,9 +59,46 @@ public static class YtSearchService {
             //string somePart = jsonObject["responseContext"]["serviceTrackingParams"];
             JsonDocument document = JsonDocument.Parse(pseudoJson.Substring(varLength, pseudoJson.Length - (varLength + 1)));
             JsonElement root = document.RootElement;
-            string somePart = root.GetProperty("contents").GetProperty("twoColumnSearchResultsRenderer").GetProperty("primaryContents").GetProperty("sectionListRenderer").GetProperty("contents")[0].GetProperty("itemSectionRenderer").GetProperty("contents")[2].ToString();
+            //string somePart = root.GetProperty("contents").GetProperty("twoColumnSearchResultsRenderer").GetProperty("primaryContents").GetProperty("sectionListRenderer").GetProperty("contents")[0].GetProperty("itemSectionRenderer").GetProperty("contents")[2].ToString();
+            IList<JsonElement> somePart = root.GetProperty("contents").GetProperty("twoColumnSearchResultsRenderer").GetProperty("primaryContents").GetProperty("sectionListRenderer").GetProperty("contents")[0].GetProperty("itemSectionRenderer").GetProperty("contents").EnumerateArray().Where(x => x.EnumerateObject().FirstOrDefault().Name == "videoRenderer").ToList();
+            foreach(var vid in somePart){
+                //dynamic dynVid = vid; // JsonElement to dynamic werkt niet..
+                //string title = dynVid["videoRenderer"]["title"]["runs"][0]["text"];
+                string vidId = vid.GetProperty("videoRenderer").GetProperty("videoId").ToString();
+                string vidLink = "https://www.youtube.com/watch?v=" + vidId;
+                string thumb = vid.GetProperty("videoRenderer").GetProperty("thumbnail").GetProperty("thumbnails")[0].GetProperty("url").ToString();
+                string title = vid.GetProperty("videoRenderer").GetProperty("title").GetProperty("runs")[0].GetProperty("text").ToString();
+                string channel = vid.GetProperty("videoRenderer").GetProperty("longBylineText").GetProperty("runs")[0].GetProperty("text").ToString();
+                string length = vid.GetProperty("videoRenderer").GetProperty("lengthText").GetProperty("simpleText").ToString();
+                int views = int.Parse(vid.GetProperty("videoRenderer").GetProperty("viewCountText").GetProperty("simpleText").ToString().Split(" ")[0].Replace(".", ""));
+
+                //Console.WriteLine($"id: {vidId}, link: {vidLink}, thumb: {thumb.Substring(0, 20)}, title: {title}, channel: {channel}, length: {length}, views: {views}");
+
+                // result.id.videoId
+                // result.snippet.thumbnails.default.url
+                // result.snippet.channelTitle
+                // result.snippet.title
+                // result.progress, result.downloading, result.views
+
+                // workaround, 'default' als key gebruiken
+                dynamic subObj = new ExpandoObject();
+                subObj.@default = new { url = thumb };
+
+                dynamic reactObj = new {
+                    id = vidId,
+                    snippet = new {
+                        channelTitle = channel,
+                        title = title,
+                        thumbnails = new { @default = new { url = thumb } }
+                    },
+                    progress = 0,
+                    downloading = false,
+                    views = views
+                };
+                Console.WriteLine(reactObj.ToString());
+            }
             //string somePart = root.GetProperty("responseContext").GetProperty("contents").ToString();
-            Console.WriteLine(somePart);
+            //Console.WriteLine(somePart[0].ToString());
             File.WriteAllText(filePath, document.RootElement.ToString());
 
         } else {
@@ -101,6 +139,68 @@ public static class YtSearchService {
     }
 
     return divs;
+}
+public async static Task<IEnumerable<dynamic>> searchYtAlt (string url){
+    string ytRes = await ytSearch(url);
+    IEnumerable<JsonElement> jsonList = parseYtToJson(ytRes);
+    IEnumerable<dynamic> objList = jsonList.Select(x => convertJsonToDyn(x));
+    return objList;
+}
+
+public async static Task searchYtTest (string url){
+    string ytRes = await ytSearch(url);
+    //Console.WriteLine(ytRes);
+    //IEnumerable<JsonElement> jsonList = parseYtToJson(ytRes);
+    //IEnumerable<dynamic> objList = jsonList.Select(x => convertJsonToDyn(x));
+    //return null;
+}
+
+private static async Task<string> ytSearch(string url){
+    HttpClient httpClient = new HttpClient();
+    try
+    {
+        string html = await httpClient.GetStringAsync(url);
+        Console.WriteLine(html.Substring(0, 50));
+
+        HtmlDocument doc = new HtmlDocument();
+        doc.LoadHtml(html);
+        string ytRes = doc.DocumentNode.Descendants("script").OrderBy(x => x.InnerHtml.Length).Last().InnerHtml;
+        return ytRes;
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"An error occurred: {ex.Message}");
+    }
+    return null;
+}
+private static IEnumerable<JsonElement> parseYtToJson(string ytRes){
+    int varLength = 20;
+    JsonDocument document = JsonDocument.Parse(ytRes.Substring(varLength, ytRes.Length - (varLength + 1)));
+    JsonElement root = document.RootElement;
+    IEnumerable<JsonElement> jsonList = root.GetProperty("contents").GetProperty("twoColumnSearchResultsRenderer").GetProperty("primaryContents").GetProperty("sectionListRenderer").GetProperty("contents")[0].GetProperty("itemSectionRenderer").GetProperty("contents").EnumerateArray().Where(x => x.EnumerateObject().FirstOrDefault().Name == "videoRenderer").ToList();
+    return jsonList;
+}
+private static dynamic convertJsonToDyn(JsonElement jsonElement){
+    string vidId = jsonElement.GetProperty("videoRenderer").GetProperty("videoId").ToString();
+    string vidLink = "https://www.youtube.com/watch?v=" + vidId;
+    string thumb = jsonElement.GetProperty("videoRenderer").GetProperty("thumbnail").GetProperty("thumbnails")[0].GetProperty("url").ToString();
+    string title = jsonElement.GetProperty("videoRenderer").GetProperty("title").GetProperty("runs")[0].GetProperty("text").ToString();
+    string channel = jsonElement.GetProperty("videoRenderer").GetProperty("longBylineText").GetProperty("runs")[0].GetProperty("text").ToString();
+    string length = jsonElement.GetProperty("videoRenderer").GetProperty("lengthText").GetProperty("simpleText").ToString();
+    int views = int.Parse(jsonElement.GetProperty("videoRenderer").GetProperty("viewCountText").GetProperty("simpleText").ToString().Split(" ")[0].Replace(".", ""));
+
+    dynamic reactObj = new {
+        id = vidId,
+        snippet = new {
+            channelTitle = channel,
+            title = title,
+            thumbnails = new { @default = new { url = thumb } }
+        },
+        progress = 0,
+        downloading = false,
+        views = views
+    };
+    return reactObj;
 }
 
 }

@@ -46,7 +46,8 @@ export function YoutubeApp(){
         }
         const response = await fetch("/ytApi/search", options);
         const data = await response.json();
-        console.log(data);
+        //console.log(data);
+        setSearchResults(data);
         setIsLoading(false);
       } catch (e){
         console.error('Error:', e);
