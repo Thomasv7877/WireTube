@@ -94,9 +94,12 @@ tr {
 }
 
 #searchYt {
-  width: 30%;
   margin-bottom: 1em;
   margin-right: 1em;
+}
+#searchToggle {
+  display: inline-block;
+  vertical-align: middle;
 }
 .spinner-grow {
   display: block;
@@ -109,16 +112,23 @@ tr {
   /*display: flex;*/
   margin-bottom: 1em;
   list-style: none;
+  height: 100px;
+}
+#ytResults li a {
+  /*float: left;*/
+  max-width: 100%;
+  max-height: 100%;
 }
 #ytResults li img {
-  float: left;
+  /*float: left;*/
+  height: 100%;
+  width: auto;
+  object-fit: contain;
 }
 #ytResults li p {
   margin-bottom: 0px;
-  padding-left: 12%;
 }
 #ytResults li h5 {
-  padding-left: 12%;
 }
 #ytResults li button {
   margin: 0px;
@@ -134,7 +144,8 @@ tr {
   clear: both;
 }
 #progressBar {
-  margin-left: 1em;
-  width: 25%;
-  /*visibility: visible;*/
+  /*width: 50%;
+  visibility: visible;*/
+  vertical-align: middle;
+  margin-top: 10px;
 }

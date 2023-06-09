@@ -189,12 +189,14 @@ private static dynamic convertJsonToDyn(JsonElement jsonElement){
     string length = jsonElement.GetProperty("videoRenderer").GetProperty("lengthText").GetProperty("simpleText").ToString();
     int views = int.Parse(jsonElement.GetProperty("videoRenderer").GetProperty("viewCountText").GetProperty("simpleText").ToString().Split(" ")[0].Replace(".", ""));
 
+    // indien gereserveerde key zoals 'default' nodig '@default' gebruiken
+
     dynamic reactObj = new {
-        id = vidId,
+        id = new { videoId = vidId},
         snippet = new {
             channelTitle = channel,
             title = title,
-            thumbnails = new { @default = new { url = thumb } }
+            thumbnails = new {medium = new { url = thumb } }
         },
         progress = 0,
         downloading = false,

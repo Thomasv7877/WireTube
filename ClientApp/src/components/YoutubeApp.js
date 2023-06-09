@@ -11,6 +11,7 @@ export function YoutubeApp(){
     const apiUrl = `https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${searchTerm}&type=video&key=${apiKey}`;
     const [searchResults, setSearchResults] = useState([]);
     //const testVar = "https://www.youtube.com/watch?v=1cBZcpSeiFc&pp=ygUTcGF5YmFjayBqYW1lcyBicm93bg%3D%3D";
+    const [searchToggle, setSearchToggle] = useState(false);
     
     const handleSearch = async () => {
         try {
@@ -46,7 +47,7 @@ export function YoutubeApp(){
         }
         const response = await fetch("/ytApi/search", options);
         const data = await response.json();
-        //console.log(data);
+        console.log(data[0]);
         setSearchResults(data);
         setIsLoading(false);
       } catch (e){
@@ -161,8 +162,14 @@ export function YoutubeApp(){
     return(
         <div className="yt-search-wrapper">
         <p id="search-title">Find something on youtube</p>
-        <input id="searchYt" type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} onKeyDown={handleKeyDown} placeholder="Search songs..."/>
-        <input id="searchYt" type="text" value={searchTermAlt} onChange={e => setSearchTermAlt(e.target.value)} onKeyDown={handleKeyDownAlt} placeholder="Search songs... without API token"/>
+        { searchToggle ? 
+            <input id="searchYt" className="col-6" type="text" value={searchTermAlt} onChange={e => setSearchTermAlt(e.target.value)} onKeyDown={handleKeyDownAlt} placeholder="Search songs... without API token"/>
+            :
+            <input id="searchYt" className="col-6" type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} onKeyDown={handleKeyDown} placeholder="Search songs..."/>
+        }
+        <div id="searchToggle" className="form-check form-switch">
+        <input className="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onClick={() => setSearchToggle(!searchToggle)}/>
+        </div>
         {/*<button type="button" className="btn btn-primary btn-sm" onClick={handleSearch}>Search</button>
         <button type="button" className="btn btn-primary" onClick={() => handlePostTest(testVar)}>Post test & Clear results</button>*/}
         {!isLoading ? (
@@ -171,11 +178,15 @@ export function YoutubeApp(){
         {
             var vidLink = `https://www.youtube.com/watch?v=${result.id.videoId}`;
         return (
-          <li key={result.id.videoId} className="clearfix">
-            <a href={vidLink}><img src={result.snippet.thumbnails.default.url} alt={result.snippet.title}></img></a>
-            <h5>{result.snippet.title}</h5>
+          <li key={result.id.videoId} className="clearfix row">
+            <a href={vidLink} className="col-md-2 col-6"><img src={result.snippet.thumbnails.medium.url} alt={result.snippet.title} className="img-fluid"></img></a>
+            <div className="col-md-7 col-6"><h5>{result.snippet.title}</h5>
             <p>{result.snippet.channelTitle} - {formatViews(result.views)} views <button type="button" className="btn" onClick={() => handleDownload(vidLink, result.snippet.title)}><i className={formatButton(result.downloading, result.progress)}></i></button></p>
-            <progress id="progressBar" value={result.progress} max='100' style={{visibility: result.downloading ? 'visible' : 'hidden'}}></progress>
+            {/*<progress id="progressBar" value={result.progress} max='100' style={{visibility: result.downloading ? 'visible' : 'hidden'}} className="col-6"></progress>*/}
+            <div className="progress col-6" id="progressBar" style={{visibility: result.downloading ? 'visible' : 'hidden'}}>
+              <div className={`progress-bar ${result.progress < 100 ? "progress-bar-striped progress-bar-animated" : "" }`} role="progressbar" aria-valuenow={result.progress} aria-valuemin="0" aria-valuemax="100" style={{width: result.progress + "%"}}></div>
+            </div>
+            </div>
             </li>
         )})}
       </ul>) : (<div className="spinner-grow text-primary m-5" role="status">
