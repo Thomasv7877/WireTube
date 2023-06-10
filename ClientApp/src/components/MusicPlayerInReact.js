@@ -9,6 +9,7 @@ const MusicPlayerInReact = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredSongs, setFilteredSongs] = useState([]);
   const [isShuffled, setIsShuffled] = useState(false);
+  const canvasRef = useRef(null);
 
   /*const fetchMusicList = async () => {
     try {
