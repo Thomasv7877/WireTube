@@ -151,6 +151,7 @@ const MusicPlayerInReact = () => {
           </div>
           
           <div id='media-control'>
+          <canvas className='visCanvas' ref={canvasRef}></canvas>
           <audio id="audio-player" ref={audioRef} src={isPlaying? `ytApi/audio?fileName=${filteredSongs[currentSongIndex].fileName}` : null} onEnded={handleNext} controls />
             <button onClick={handlePrevious}>Previous</button>
 
