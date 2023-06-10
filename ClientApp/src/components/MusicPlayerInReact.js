@@ -10,6 +10,8 @@ const MusicPlayerInReact = () => {
   const [filteredSongs, setFilteredSongs] = useState([]);
   const [isShuffled, setIsShuffled] = useState(false);
   const canvasRef = useRef(null);
+  const previousSongIndexRef = useRef(null);
+  var currentTime = useRef(0);
 
   /*const fetchMusicList = async () => {
     try {
@@ -101,13 +103,18 @@ const MusicPlayerInReact = () => {
         //const audio = new Audio(`ytApi/audio?fileName=${musicFiles[currentSongIndex]}`);
         //const audio = document.getElementById('audio-player');
         //audio.play();
+        if(previousSongIndexRef.current === currentSongIndex){
+          audioRef.current.currentTime = currentTime.current;
+        }
         audioRef.current.play();
       } else {
         // Pause the audio
         //const audio = document.getElementById('audio-player');
         //audio.pause();
+        currentTime.current = audioRef.current.currentTime;
         audioRef.current.pause();
       }
+      previousSongIndexRef.current = currentSongIndex;
     }
   }, [currentSongIndex, isPlaying, filteredSongs]);
 
