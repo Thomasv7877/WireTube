@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import '../custom.css'
 
 const MusicPlayerInReact = () => {
@@ -12,6 +12,8 @@ const MusicPlayerInReact = () => {
   const canvasRef = useRef(null);
   const previousSongIndexRef = useRef(null);
   var currentTime = useRef(0);
+
+  const [analyzerData, setAnalyzerData] = useState(null);
 
   /*const fetchMusicList = async () => {
     try {
@@ -94,6 +96,88 @@ const MusicPlayerInReact = () => {
     fetchMusicAll();
   }, []);
 
+  const audioAnalyzer = () => {
+    // create a new AudioContext
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // create an analyzer node with a buffer size of 2048
+    const analyzer = audioCtx.createAnalyser();
+    analyzer.fftSize = 256;
+
+    const bufferLength = analyzer.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    const source = audioCtx.createMediaElementSource(audioRef.current);
+    source.connect(analyzer);
+    source.connect(audioCtx.destination);
+    source.onended = () => {
+        source.disconnect();
+    };
+
+    // set the analyzerData state with the analyzer, bufferLength, and dataArray
+    setAnalyzerData({ analyzer, bufferLength, dataArray });
+  };
+
+  function animateBars(analyser, canvas, canvasCtx, dataArray, bufferLength) {
+    // Analyze the audio data using the Web Audio API's `getByteFrequencyData` method.
+    analyser.getByteFrequencyData(dataArray);
+  
+    // Set the canvas fill style to black.
+    canvasCtx.fillStyle = '#000';
+  
+    // Calculate the height of the canvas.
+    const HEIGHT = canvas.height / 2;
+  
+    // Calculate the width of each bar in the waveform based on the canvas width and the buffer length.
+    var barWidth = Math.ceil(canvas.width / bufferLength) * 2.5;
+  
+    // Initialize variables for the bar height and x-position.
+    let barHeight;
+    let x = 0;
+  
+    // Loop through each element in the `dataArray`.
+    for (var i = 0; i < bufferLength; i++) {
+      // Calculate the height of the current bar based on the audio data and the canvas height.
+      barHeight = (dataArray[i] / 255) * HEIGHT;
+  
+      // Generate random RGB values for each bar.
+      const maximum = 10;
+      const minimum = -10;
+      var r = 242 + Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
+      var g = 104 + Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
+      var b = 65 + Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
+  
+      // Set the canvas fill style to the random RGB values.
+      canvasCtx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+  
+      // Draw the bar on the canvas at the current x-position and with the calculated height and width.
+      canvasCtx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
+  
+      // Update the x-position for the next bar.
+      x += barWidth + 1;
+    }
+  }
+
+  // Function to draw the waveform
+  const drawCallback = useCallback(() => {
+      const canvas = canvasRef.current;
+      if (!canvas || !analyzerData.analyzer) return;
+      const canvasCtx = canvas.getContext("2d");
+  
+      const animate = () => {
+        requestAnimationFrame(animate);
+        //canvas.width = canvas.width;
+        canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+        animateBars(analyzerData.analyzer, canvas, canvasCtx, analyzerData.dataArray, analyzerData.bufferLength);
+      };
+  
+      animate();
+  }, [analyzerData]);
+  
+
+  // Effect to draw the waveform on mount and update
+  useEffect(() => {
+    drawCallback();
+  }, [analyzerData, drawCallback]);
+
   // Handle playback when the current song index changes
   useEffect(() => {
     if (currentSongIndex !== null) {
@@ -107,6 +191,7 @@ const MusicPlayerInReact = () => {
           audioRef.current.currentTime = currentTime.current;
         }
         audioRef.current.play();
+        audioAnalyzer();
       } else {
         // Pause the audio
         //const audio = document.getElementById('audio-player');
@@ -117,6 +202,8 @@ const MusicPlayerInReact = () => {
       previousSongIndexRef.current = currentSongIndex;
     }
   }, [currentSongIndex, isPlaying, filteredSongs]);
+
+  
 
   return (
     <div className='al-container'>
