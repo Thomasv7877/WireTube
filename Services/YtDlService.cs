@@ -64,7 +64,7 @@ public class YtDlService {
         Console.WriteLine(output);
     }
     public async Task ripAudioWProgress (string vidUrl, YtDlServiceWProgress downloader){
-        string command = $"--newline --no-warnings --no-call-home -o \"{_saveFolder}/%(title)s - %(artist)s.%(ext)s\" -x -r 200k --add-metadata {vidUrl}";
+        string command = $"--newline --no-warnings --no-call-home -o \"{_saveFolder}/%(title)s - %(artist)s.%(ext)s\" -x -f bestaudio -r 250k --add-metadata {vidUrl}";
         Console.WriteLine(command);
         //var downloader = new YtDlServiceWProgress(vidTitle);
         progressList.Add(downloader);
@@ -73,7 +73,7 @@ public class YtDlService {
         {
             Console.WriteLine($"Progress: {progress}% voor vid {downloader._vidTitle}");
         };*/
-        await downloader.DownloadVideoDummy(command);
+        await downloader.DownloadVideo(command);
     }
     public IEnumerable<dynamic> getTracks(){
         var extensions = new string[]{".opus", ".mp3", ".ogg", ".wav"};
