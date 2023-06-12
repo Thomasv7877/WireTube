@@ -14,6 +14,9 @@ const MusicPlayerInReact = () => {
   var currentTime = useRef(0);
 
   const [analyzerData, setAnalyzerData] = useState(null);
+  const audioCtxRef = useRef(null);
+  const analyzerRef = useRef(null);
+  const sourceRef = useRef(null);
 
   /*const fetchMusicList = async () => {
     try {
@@ -98,18 +101,23 @@ const MusicPlayerInReact = () => {
 
   const audioAnalyzer = () => {
     // create a new AudioContext
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    const audioCtx = audioCtxRef.current;
     // create an analyzer node with a buffer size of 2048
-    const analyzer = audioCtx.createAnalyser();
-    analyzer.fftSize = 256;
+    analyzerRef.current = audioCtx.createAnalyser();
+    const analyzer = analyzerRef.current;
+    analyzer.fftSize = 256; // original was 2048
 
     const bufferLength = analyzer.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
-    const source = audioCtx.createMediaElementSource(audioRef.current);
+    sourceRef.current = audioCtx.createMediaElementSource(audioRef.current);
+    var source = sourceRef.current;
+    console.log("Created a source");
     source.connect(analyzer);
     source.connect(audioCtx.destination);
     source.onended = () => {
         source.disconnect();
+        console.log("Disconnected a source");
     };
 
     // set the analyzerData state with the analyzer, bufferLength, and dataArray
@@ -124,10 +132,11 @@ const MusicPlayerInReact = () => {
     canvasCtx.fillStyle = '#000';
   
     // Calculate the height of the canvas.
-    const HEIGHT = canvas.height / 2;
+    //const HEIGHT = canvas.height / 2;
+    const HEIGHT = canvas.height;
   
     // Calculate the width of each bar in the waveform based on the canvas width and the buffer length.
-    var barWidth = Math.ceil(canvas.width / bufferLength) * 2.5;
+    var barWidth = Math.ceil(canvas.width / bufferLength); // original was * 2.5
   
     // Initialize variables for the bar height and x-position.
     let barHeight;
@@ -139,17 +148,19 @@ const MusicPlayerInReact = () => {
       barHeight = (dataArray[i] / 255) * HEIGHT;
   
       // Generate random RGB values for each bar.
-      const maximum = 10;
-      const minimum = -10;
-      var r = 242 + Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
-      var g = 104 + Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
-      var b = 65 + Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
+      //const maximum = 10;
+      //const minimum = -10;
+      //var r = 242 + Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
+      //var g = 104 + Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
+      //var b = 65 + Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
+      var r = 0; var g = 169; var b = 223;
   
       // Set the canvas fill style to the random RGB values.
       canvasCtx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
   
       // Draw the bar on the canvas at the current x-position and with the calculated height and width.
-      canvasCtx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
+      //canvasCtx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
+      canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
   
       // Update the x-position for the next bar.
       x += barWidth + 1;
@@ -190,7 +201,11 @@ const MusicPlayerInReact = () => {
         if(previousSongIndexRef.current === currentSongIndex){
           audioRef.current.currentTime = currentTime.current;
         }
+        //audioRef.current.volume = 1; // workaround volume verhoogt elke song
         audioRef.current.play();
+        if(sourceRef.current){
+          sourceRef.current.disconnect(); // indien vorige ref niet disconnect zal volume trapgewijs verhogen..
+        }
         audioAnalyzer();
       } else {
         // Pause the audio
