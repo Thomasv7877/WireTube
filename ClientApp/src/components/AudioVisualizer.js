@@ -129,7 +129,9 @@ export default function AudioVizualizer({audioState}){
         if(sourceRef.current){
             sourceRef.current.disconnect(); // indien vorige ref niet disconnect zal volume trapgewijs verhogen..
           }
-          audioAnalyzerCallback();
+          if(audioState){
+            audioAnalyzerCallback();
+          }
       }, [audioState, audioAnalyzerCallback]);
 
       return(
