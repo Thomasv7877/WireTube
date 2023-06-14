@@ -205,6 +205,7 @@ const MusicPlayerInReact = () => {
         }
         //audioRef.current.volume = 1; // workaround volume verhoogt elke song
         audioRef.current.play();
+        setAudioState(audioRef.current);
         /*if(sourceRef.current){
           sourceRef.current.disconnect(); // indien vorige ref niet disconnect zal volume trapgewijs verhogen..
         }
@@ -222,8 +223,10 @@ const MusicPlayerInReact = () => {
 
   const getAudioSource = () => {
     var song = filteredSongs[currentSongIndex].fileName;
-    setAudioState(audioRef.current);
+    //setAudioState(audioRef.current);
+    //console.log(`ytApi/audio?fileName=${song}`);
     return isPlaying? `ytApi/audio?fileName=${song}` : null;
+    //return isPlaying? `ytApi/audio?fileName=${filteredSongs[currentSongIndex].fileName}` : null
   }
 
   return (
@@ -269,7 +272,7 @@ const MusicPlayerInReact = () => {
           <div id='media-control'>
           {/*<canvas className='visCanvas' ref={canvasRef}></canvas>*/}
           <AudioVizualizer audioState={audioState}></AudioVizualizer>
-          <audio id="audio-player" ref={audioRef} src={() => getAudioSource()} onEnded={handleNext} controls />
+          <audio id="audio-player" ref={audioRef} src={getAudioSource()} onEnded={handleNext} controls />
             <button onClick={handlePrevious}>Previous</button>
 
             {isPlaying ? (
