@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../custom.css'
+import AudioVizualizer from './AudioVisualizer';
 
 const MusicPlayerInReact = () => {
   const [musicFiles, setMusicFiles] = useState([]);
@@ -9,14 +10,15 @@ const MusicPlayerInReact = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredSongs, setFilteredSongs] = useState([]);
   const [isShuffled, setIsShuffled] = useState(false);
-  const canvasRef = useRef(null);
+  //const canvasRef = useRef(null);
   const previousSongIndexRef = useRef(null);
   var currentTime = useRef(0);
 
-  const [analyzerData, setAnalyzerData] = useState(null);
-  const audioCtxRef = useRef(null);
-  const analyzerRef = useRef(null);
-  const sourceRef = useRef(null);
+  //const [analyzerData, setAnalyzerData] = useState(null);
+  //const audioCtxRef = useRef(null);
+  //const analyzerRef = useRef(null);
+  //const sourceRef = useRef(null);
+  const [audioState, setAudioState] = useState(audioRef.current);
 
   /*const fetchMusicList = async () => {
     try {
@@ -98,7 +100,7 @@ const MusicPlayerInReact = () => {
     //fetchMusicList();
     fetchMusicAll();
   }, []);
-
+/*
   const audioAnalyzer = () => {
     // create a new AudioContext
     audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
@@ -188,7 +190,7 @@ const MusicPlayerInReact = () => {
   useEffect(() => {
     drawCallback();
   }, [analyzerData, drawCallback]);
-
+*/
   // Handle playback when the current song index changes
   useEffect(() => {
     if (currentSongIndex !== null) {
@@ -203,10 +205,11 @@ const MusicPlayerInReact = () => {
         }
         //audioRef.current.volume = 1; // workaround volume verhoogt elke song
         audioRef.current.play();
-        if(sourceRef.current){
+        setAudioState(audioRef.current);
+        /*if(sourceRef.current){
           sourceRef.current.disconnect(); // indien vorige ref niet disconnect zal volume trapgewijs verhogen..
         }
-        audioAnalyzer();
+        audioAnalyzer();*/
       } else {
         // Pause the audio
         //const audio = document.getElementById('audio-player');
@@ -218,7 +221,13 @@ const MusicPlayerInReact = () => {
     }
   }, [currentSongIndex, isPlaying, filteredSongs]);
 
-  
+  const getAudioSource = () => {
+    var song = filteredSongs[currentSongIndex].fileName;
+    //setAudioState(audioRef.current);
+    //console.log(`ytApi/audio?fileName=${song}`);
+    return isPlaying? `ytApi/audio?fileName=${song}` : null;
+    //return isPlaying? `ytApi/audio?fileName=${filteredSongs[currentSongIndex].fileName}` : null
+  }
 
   return (
     <div className='al-container'>
@@ -261,8 +270,9 @@ const MusicPlayerInReact = () => {
           </div>
           
           <div id='media-control'>
-          <canvas className='visCanvas' ref={canvasRef}></canvas>
-          <audio id="audio-player" ref={audioRef} src={isPlaying? `ytApi/audio?fileName=${filteredSongs[currentSongIndex].fileName}` : null} onEnded={handleNext} controls />
+          {/*<canvas className='visCanvas' ref={canvasRef}></canvas>*/}
+          <AudioVizualizer audioState={audioState}></AudioVizualizer>
+          <audio id="audio-player" ref={audioRef} src={getAudioSource()} onEnded={handleNext} controls />
             <button onClick={handlePrevious}>Previous</button>
 
             {isPlaying ? (
