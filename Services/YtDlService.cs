@@ -73,7 +73,7 @@ public class YtDlService {
         {
             Console.WriteLine($"Progress: {progress}% voor vid {downloader._vidTitle}");
         };*/
-        await downloader.DownloadVideo(command);
+        await downloader.DownloadVideoDummy(command);
     }
     public IEnumerable<dynamic> getTracks(){
         var extensions = new string[]{".opus", ".mp3", ".ogg", ".wav"};

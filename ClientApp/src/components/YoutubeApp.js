@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from "react";
-//import { Download, Envelope } from "bootstrap-icons/icons";
 import '../custom.css'
 
+// search and download youtube videos
 export function YoutubeApp(){
     const [searchTerm, setSearchTerm] = useState('');
     const [searchTermAlt, setSearchTermAlt] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    //const apiKey = 'AIzaSyDnMozDltngJNf45Dnel-Xxo1Gm-Q0_uUU';
     const apiKey = process.env.react_app_yt_api_key;
     const apiUrl = `https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${searchTerm}&type=video&key=${apiKey}`;
     const [searchResults, setSearchResults] = useState([]);
-    //const testVar = "https://www.youtube.com/watch?v=1cBZcpSeiFc&pp=ygUTcGF5YmFjayBqYW1lcyBicm93bg%3D%3D";
     const [searchToggle, setSearchToggle] = useState(false);
     
+    // untoggled: search videos using the youtube API, needs a token
     const handleSearch = async () => {
         try {
           setIsLoading(true);
@@ -22,12 +21,10 @@ export function YoutubeApp(){
             var detailUrl = `https://youtube.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${data.items[i].id.videoId}&key=${apiKey}`;
             const subResponse = await fetch(detailUrl);
             const subData = await subResponse.json();
-            //console.log(subData.items[0].statistics.viewCount);
             data.items[i]['views'] = subData.items[0].statistics.viewCount;
             data.items[i]['downloading'] = false;
             data.items[i]['dlProgress'] = 0;
           }
-          //console.log(data.items[0]);
           setSearchResults(data.items);
           setIsLoading(false);
         } catch (error) {
@@ -35,10 +32,11 @@ export function YoutubeApp(){
         }
       };
 
+    // toggled: send url of regular yoiutube search to backend, will scrape the raw html page and return results
+    // REM: will break if youtube changes page formatting
     const handleSearchNoAPI = async () => {
       try {
         setIsLoading(true);
-        console.log("Searched for " + searchTermAlt);
         const yturl = `https://www.youtube.com/results?search_query=${searchTermAlt}`;
         const options = {
           method: 'POST',
@@ -47,7 +45,6 @@ export function YoutubeApp(){
         }
         const response = await fetch("/ytApi/search", options);
         const data = await response.json();
-        console.log(data[0]);
         setSearchResults(data);
         setIsLoading(false);
       } catch (e){
@@ -55,8 +52,8 @@ export function YoutubeApp(){
       };
     };
 
+    // send video id to backend, wil audio will be ripped using youtube-dl or yt-dlp
     const handleDownload = async (vidUrl, vidTitle) => {
-      //setSearchResults([]);
       try {
         const response = await fetch("/ytApi/dl", {
           method: 'POST',
@@ -66,10 +63,8 @@ export function YoutubeApp(){
             title: vidTitle})
             });
         const data = await response.json();
-        console.log(data);
-        console.log("test");
       } catch (error) {
-        //console.error('Error:', error);
+        console.error('Error:', error);
       }
     }
     const handleKeyDown = (event) => {
@@ -83,60 +78,21 @@ export function YoutubeApp(){
       }
     }
 
-    /*const handleEvent = (event) => {
-      console.log('Received event:', event.data);
-      // Process the event data as needed
-    };
-
-    useEffect(() => {
-      const eventSource = new EventSource('/ytApi/dlprogresssocket');
-    
-      eventSource.addEventListener('update', handleEvent);
-      eventSource.addEventListener('error', (error) => {
-        console.error('SSE error:', error);
-      });
-    
-      return () => {
-        eventSource.close(); // Clean up the EventSource instance when the component is unmounted
-      };
-    }, []);*/
-
-    /*useEffect(() => {
-      // Establish WebSocket connection to SSE endpoint
-      const socket = new WebSocket('/ytApi/dlprogresssocket');
-  
-      // Handle incoming progress updates
-      socket.onmessage = (event) => {
-        //const progress = JSON.parse(event.data);
-        // Update your React component state or UI based on progress
-        console.log("got something..");
-      };
-  
-      // Clean up the WebSocket connection
-      return () => {
-        socket.close();
-      };
-    }, []);*/
-
-    // socket open houden voor dl progress
+    // socket for download progress
     useEffect(() => {
       const eventSource = new EventSource('/ytApi/dlprogress');
       eventSource.addEventListener('update', (event) => {
         const eventData = JSON.parse(event.data);
-        // Process the received event data (e.g., update UI)
         console.log("got something.. title = " + eventData.Title + " progress = " + eventData.Progress);
         // nieuwe array maken, wegens ondiepe vgl anders geen rerender getriggered
         var newSearchResults = [...searchResults];
         newSearchResults.filter(obj => obj.snippet.title === eventData.Title).forEach(obj => {
           obj.downloading = true;
           obj.progress = eventData.Progress;
-          //console.log("Found Song!");
         });
         setSearchResults(newSearchResults);
       });
       eventSource.addEventListener('error', (event) => {
-        //const eventData = JSON.parse(event.data);
-        // Process the received event data (e.g., update UI)
         console.log("something went wrong.." + event);
       });
       /*return () => { // niet gebruiken anders gegarandeerd elke render nieuwe connectie
@@ -145,57 +101,41 @@ export function YoutubeApp(){
       };*/
     }, [searchResults]);
 
-    /*useEffect(() => {
-      const eventSource = new EventSource('/ytApi/dlprogress');
-  
-      eventSource.onmessage = (event) => {
-        const message = event.data;
-        console.log('Received SSE message:', message);
-        // Handle the SSE message as needed
-      };
-  
-      return () => {
-        eventSource.close();
-      };
-    }, []);*/
-
-    return(
-        <div className="yt-search-wrapper">
-        <p id="search-title">Find something on youtube</p>
-        { searchToggle ? 
-            <input id="searchYt" className="col-6" type="text" value={searchTermAlt} onChange={e => setSearchTermAlt(e.target.value)} onKeyDown={handleKeyDownAlt} placeholder="Search songs... without API token"/>
-            :
-            <input id="searchYt" className="col-6" type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} onKeyDown={handleKeyDown} placeholder="Search songs..."/>
-        }
-        <div id="searchToggle" className="form-check form-switch">
-        <input className="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onClick={() => setSearchToggle(!searchToggle)}/>
-        </div>
-        {/*<button type="button" className="btn btn-primary btn-sm" onClick={handleSearch}>Search</button>
-        <button type="button" className="btn btn-primary" onClick={() => handlePostTest(testVar)}>Post test & Clear results</button>*/}
-        {!isLoading ? (
+  return (
+    <div className="yt-search-wrapper">
+      <p id="search-title">Find something on youtube</p>
+      {searchToggle ?
+        <input id="searchYt" className="col-6" type="text" value={searchTermAlt} onChange={e => setSearchTermAlt(e.target.value)} onKeyDown={handleKeyDownAlt} placeholder="Search songs... without API token" />
+        :
+        <input id="searchYt" className="col-6" type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} onKeyDown={handleKeyDown} placeholder="Search songs..." />
+      }
+      <div id="searchToggle" className="form-check form-switch">
+        <input className="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onClick={() => setSearchToggle(!searchToggle)} />
+      </div>
+      {!isLoading ? (
         <ul id="ytResults">
-        {searchResults.map(result => 
-        {
+          {searchResults.map(result => {
             var vidLink = `https://www.youtube.com/watch?v=${result.id.videoId}`;
-        return (
-          <li key={result.id.videoId} className="clearfix row">
-            <a href={vidLink} className="col-md-2 col-6"><img src={result.snippet.thumbnails.medium.url} alt={result.snippet.title} className="img-fluid"></img></a>
-            <div className="col-md-7 col-6"><h5>{result.snippet.title}</h5>
-            <p>{result.snippet.channelTitle} - {formatViews(result.views)} views <button type="button" className="btn" onClick={() => handleDownload(vidLink, result.snippet.title)}><i className={formatButton(result.downloading, result.progress)}></i></button></p>
-            {/*<progress id="progressBar" value={result.progress} max='100' style={{visibility: result.downloading ? 'visible' : 'hidden'}} className="col-6"></progress>*/}
-            <div className="progress col-6" id="progressBar" style={{visibility: result.downloading ? 'visible' : 'hidden'}}>
-              <div className={`progress-bar ${result.progress < 100 ? "progress-bar-striped progress-bar-animated" : "" }`} role="progressbar" aria-valuenow={result.progress} aria-valuemin="0" aria-valuemax="100" style={{width: result.progress + "%"}}></div>
-            </div>
-            </div>
-            </li>
-        )})}
-      </ul>) : (<div className="spinner-grow text-primary m-5" role="status">
-  <span className="sr-only">test</span>
-</div>)}
-        </div>
-    );
+            return (
+              <li key={result.id.videoId} className="clearfix row">
+                <a href={vidLink} className="col-md-2 col-6"><img src={result.snippet.thumbnails.medium.url} alt={result.snippet.title} className="img-fluid"></img></a>
+                <div className="col-md-7 col-6"><h5>{result.snippet.title}</h5>
+                  <p>{result.snippet.channelTitle} - {formatViews(result.views)} views <button type="button" className="btn" onClick={() => handleDownload(vidLink, result.snippet.title)}><i className={formatButton(result.downloading, result.progress)}></i></button></p>
+                  <div className="progress col-6" id="progressBar" style={{ visibility: result.downloading ? 'visible' : 'hidden' }}>
+                    <div className={`progress-bar ${result.progress < 100 ? "progress-bar-striped progress-bar-animated" : ""}`} role="progressbar" aria-valuenow={result.progress} aria-valuemin="0" aria-valuemax="100" style={{ width: result.progress + "%" }}></div>
+                  </div>
+                </div>
+              </li>
+            )
+          })}
+        </ul>) : (<div className="spinner-grow text-primary m-5" role="status">
+          <span className="sr-only">test</span>
+        </div>)}
+    </div>
+  );
 }
 
+// helper function for view counts
 function formatViews(views){
   if(views > 1000000){
     return parseInt(Math.round(views / 1000000)) + " mln.";
@@ -205,7 +145,7 @@ function formatViews(views){
     return views;
   }
 }
-//{() => formatButton(result.downloading, result.progress)}
+// helper function: show spinner when download active, checkmark when done/100%
 function formatButton(downloading, progress){
   if(downloading && progress === 100){
     return "icon bi-check-lg";
@@ -215,13 +155,3 @@ function formatButton(downloading, progress){
     return "icon bi-download";
   }
 }
-/*
-https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=lil xan colorblind&type=video&key=AIzaSyDnMozDltngJNf45Dnel-Xxo1Gm-Q0_uUU
-https://youtube.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=wylMwU1wEOM&key=AIzaSyDnMozDltngJNf45Dnel-Xxo1Gm-Q0_uUU
-
-var vidLink = `https://www.youtube.com/watch?v=${result.id.videoId}`;
-var vidTitle = result.snippet.title
-var channelTitle = result.snippet.channelTitle
-var imgSrc = result.snippet.thumbnails.default.url
-var vidId = result.id.videoId
-*/
