@@ -230,6 +230,8 @@ const MusicPlayerInReact = () => {
   }
 
   return (
+    <>
+    <p id="lib-title">Music Library</p>
     <div className='al-container'>
       {musicFiles.length > 0 ? (
         <>
@@ -289,6 +291,7 @@ const MusicPlayerInReact = () => {
         <p>Loading music files...</p>
       )}
     </div>
+    </>
   );
 };
 
