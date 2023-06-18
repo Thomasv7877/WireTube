@@ -6,6 +6,7 @@ using dotnet_react_xml_generator.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using dotnet_react_xml_generator;
+using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -87,8 +88,16 @@ using (var scope = app.Services.CreateScope())
         await seeder.InitializeData();
     }
 
-//Console.WriteLine("Hello world! (before app run)"); // hier, mogelijk prob apî nog niet volledig beschikbaar..
-PwaManager.startPwaShortcut();
+if (!app.Environment.IsDevelopment())
+{
+    // start pwa shortcut
+    // opt 1: helper klasse
+    //Console.WriteLine("Hello world! (before app run)"); // hier, mogelijk prob apî nog niet volledig beschikbaar..
+    //PwaManager.startPwaShortcut();
+    // opt 2: shortest possible
+    string? shortcut = builder.Configuration.GetValue<string>("AppSettings:Shortcut");
+    Process.Start(shortcut);
+}
 
 app.Run();
 //app.Run("https://localhost:7066");
