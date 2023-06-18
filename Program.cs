@@ -5,6 +5,7 @@ using dotnet_react_xml_generator.Data;
 using dotnet_react_xml_generator.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using dotnet_react_xml_generator;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -86,6 +87,11 @@ using (var scope = app.Services.CreateScope())
         await seeder.InitializeData();
     }
 
+//Console.WriteLine("Hello world! (before app run)"); // hier, mogelijk prob apî nog niet volledig beschikbaar..
+PwaManager.startPwaShortcut();
+
 app.Run();
 //app.Run("https://localhost:7066");
 //app.Run("http://localhost:3000");
+
+//Console.WriteLine("Hello world! (after app run)"); // niet hier, pas gedaan als app gesloten wordt

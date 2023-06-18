@@ -235,3 +235,4 @@ _Pvt_Extensions
 app.db*
 #caddy/cloudflare.ini
 #caddy/file/Caddyfile
+pwa_shortcut
