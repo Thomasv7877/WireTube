@@ -59,7 +59,18 @@
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       </ResolvedFileToPublish>
+      <!--<PublishFile Include="$(SpaRoot).env" RelativePath="$(PublishDir)\wwwroot\.env" />
+      <PublishFile Include="$(SpaRoot)package.json" RelativePath="$(PublishDir)\wwwroot\package.json" />-->
     </ItemGroup>
   </Target>
+
+  <Target Name="CopyFilesOnPublish" AfterTargets="PublishRunWebpack">
+  <ItemGroup>
+    <FilesToCopy Include="$(SpaRoot)publish_config\.env" />
+    <FilesToCopy Include="$(SpaRoot)publish_config\package.json" />
+  </ItemGroup>
+  <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(PublishDir)\wwwroot" />
+</Target>
+
 
 </Project>
