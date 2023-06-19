@@ -88,7 +88,8 @@ using (var scope = app.Services.CreateScope())
         await seeder.InitializeData();
     }
 
-if (!app.Environment.IsDevelopment()){
+if (!app.Environment.IsDevelopment())
+{
     string? shortcut = builder.Configuration.GetValue<string>("AppSettings:Shortcut");
     PwaManager.startPwaShortcut(shortcut);
 }
