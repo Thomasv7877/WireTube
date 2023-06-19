@@ -6,26 +6,17 @@ using System.Runtime.InteropServices;
 namespace dotnet_react_xml_generator;
 
 static class PwaManager {
-/*public static void startPwaShortcut(string shortcut){
-    try {
-        // open shortcut regardless of extension
-        string[] files = Directory.GetFiles(".", shortcut.Split(".")[0] + ".*");
-        if(files.Length > 0){
-            Process.Start(files[0]);
-        }
-    } catch(Exception ex){
-        Console.WriteLine($"Could not find (pwa) shortcut: {ex.Message}");
-    }
-}*/
-
+    // open shortcut regardless of extension
     public static void multiPlatOpenShortcut(string shortcut)
     {
         try
         {
+            // match match shortcut file with appsettings.json shortcut name, ignoring extension
             string[] files = Directory.GetFiles(".", shortcut.Split(".")[0] + ".*");
             if (files.Length > 0)
             {
                 string path = files[0];
+                // handle Windows
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     Process.Start(new ProcessStartInfo()
@@ -34,14 +25,15 @@ static class PwaManager {
                         UseShellExecute = true
                     });
                 }
+                // handle Linux
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
                     // opt 1: shortcut open -> NOK, opent text editor
                     //Process.Start("xdg-open", path);
-                    // opt 2: extract exec cmd uit shortcut en run, NOK, file niet gevonden error
-                    //OpenApplication(path);
+                    // opt 2: extract exec cmd uit shortcut en run vanuit sh -> OK
+                    OpenApplication(path);
                     // opt 3: workaround, webbrowser rechtstreeks openen
-                    Process.Start("xdg-open", "http://localhost:5000");
+                    //Process.Start("xdg-open", "http://localhost:5000");
                 }
                 else
                 {
@@ -62,14 +54,7 @@ static class PwaManager {
             string execCommand = GetExecCommand(path);
             if (!string.IsNullOrEmpty(execCommand))
             {
-                Process.Start(execCommand);
-                /*string workingDirectory = Directory.GetCurrentDirectory();
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName =  execCommand,
-                    //UseShellExecute = true,
-                    //WorkingDirectory = "/home/thomas/Bureaublad/"
-                });*/
+                Process.Start("sh", $"-c \"{execCommand}\"");
                 return;
             }
         }

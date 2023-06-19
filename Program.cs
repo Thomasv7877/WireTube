@@ -91,7 +91,6 @@ using (var scope = app.Services.CreateScope())
 if (!app.Environment.IsDevelopment())
 {
     string? shortcut = builder.Configuration.GetValue<string>("AppSettings:Shortcut");
-    //PwaManager.startPwaShortcut(shortcut);
     PwaManager.multiPlatOpenShortcut(shortcut);
 }
 
