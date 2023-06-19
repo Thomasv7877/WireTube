@@ -88,15 +88,9 @@ using (var scope = app.Services.CreateScope())
         await seeder.InitializeData();
     }
 
-if (!app.Environment.IsDevelopment())
-{
-    // start pwa shortcut
-    // opt 1: helper klasse
-    //Console.WriteLine("Hello world! (before app run)"); // hier, mogelijk prob apî nog niet volledig beschikbaar..
-    //PwaManager.startPwaShortcut();
-    // opt 2: shortest possible
+if (!app.Environment.IsDevelopment()){
     string? shortcut = builder.Configuration.GetValue<string>("AppSettings:Shortcut");
-    Process.Start(shortcut);
+    PwaManager.startPwaShortcut(shortcut);
 }
 
 app.Run();
