@@ -66,8 +66,9 @@ static class PwaManager {
                 /*string workingDirectory = Directory.GetCurrentDirectory();
                 Process.Start(new ProcessStartInfo
                 {
-                    FileName = execCommand,
-                    WorkingDirectory = workingDirectory
+                    FileName =  execCommand,
+                    //UseShellExecute = true,
+                    //WorkingDirectory = "/home/thomas/Bureaublad/"
                 });*/
                 return;
             }
