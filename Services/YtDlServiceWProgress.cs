@@ -12,7 +12,7 @@ public class YtDlServiceWProgress
         _vidTitle = vidTitle;
         _progress = 0;
     }
-
+    // start a process to run the yt-dlp command, output (progress part) is captured and made available through DownloadProgressChanged callback
     public async Task DownloadVideo(string ytDlpArgs)
     {
         // Set up the process start info
@@ -34,7 +34,7 @@ public class YtDlServiceWProgress
 
         process.WaitForExit();
     }
-
+    // for testing frontend dl progress view, every half second tick up 5%
     public async Task DownloadVideoDummy(string ytDlpArgs){
         for(var i = 0; i <= 100; i += 5){
             _progress = i;
@@ -43,14 +43,13 @@ public class YtDlServiceWProgress
             await Task.Delay(1000);
         }
     }
-
+    // handler on process output, each line download percentage is filtered out and made available with DownloadProgressChanged
     private void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)
     {
         if (!string.IsNullOrEmpty(e.Data))
         {
             // Parse the output to extract the progress value
             string output = e.Data;
-            //Console.WriteLine($"Raw progress output: {output} %");
             if (output.Contains("download") && output.Contains("%"))
             {
                 int startIndex = output.IndexOf("download") + 10;
@@ -58,11 +57,9 @@ public class YtDlServiceWProgress
                 if (startIndex >= 0 && endIndex >= 0)
                 {
                     string progressString = output.Substring(startIndex, endIndex - startIndex).Trim();
-                    //Console.WriteLine($"Trimmed output: {progressString} %");
                     if (int.TryParse(progressString, out int progress))
                     {
                         // Raise the DownloadProgressChanged event
-                        //Console.WriteLine($"Progress: {progress} %");
                         DownloadProgressChanged?.Invoke(progress);
                     }
                 }

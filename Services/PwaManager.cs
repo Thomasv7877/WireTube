@@ -11,7 +11,7 @@ static class PwaManager {
     {
         try
         {
-            // match match shortcut file with appsettings.json shortcut name, ignoring extension
+            // match shortcut file with appsettings.json shortcut name, ignoring extension
             string[] files = Directory.GetFiles(".", shortcut.Split(".")[0] + ".*");
             if (files.Length > 0)
             {
@@ -28,11 +28,11 @@ static class PwaManager {
                 // handle Linux
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
-                    // opt 1: shortcut open -> NOK, opent text editor
+                    // opt 1: shortcut open -> NOK, opens text editor
                     //Process.Start("xdg-open", path);
-                    // opt 2: extract exec cmd uit shortcut en run vanuit sh -> OK
+                    // opt 2: extract exec cmd from shortcut file and run from sh -> OK
                     OpenApplication(path);
-                    // opt 3: workaround, webbrowser rechtstreeks openen
+                    // opt 3: workaround, open webbrowser instead of pwa
                     //Process.Start("xdg-open", "http://localhost:5000");
                 }
                 else
