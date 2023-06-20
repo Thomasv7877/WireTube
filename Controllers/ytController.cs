@@ -12,7 +12,7 @@ namespace dotnet_react_xml_generator.Controllers;
 [Route("[controller]")]
 public class YtApiController : ControllerBase
 {
-    private readonly ILogger<TriggerController> _logger;
+    private readonly ILogger<YtApiController> _logger;
     private readonly YtDlService _ytDlService;
     //private YtDlServiceWProgress _ytDlServiceWProgress;
     private static readonly ConcurrentDictionary<string, SSEClient> Clients = new ConcurrentDictionary<string, SSEClient>();
@@ -21,7 +21,7 @@ public class YtApiController : ControllerBase
     private readonly Queue<string> _eventQueue = new Queue<string>();
     private readonly IHostApplicationLifetime _applicationLifetime;
 
-    public YtApiController(ILogger<TriggerController> logger, YtDlService ytDlService, IHostApplicationLifetime applicationLifetime)
+    public YtApiController(ILogger<YtApiController> logger, YtDlService ytDlService, IHostApplicationLifetime applicationLifetime)
     {
         _logger = logger;
         _ytDlService = ytDlService;

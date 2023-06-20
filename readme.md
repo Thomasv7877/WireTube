@@ -4,10 +4,26 @@ An edit on the 'react' dotnet template, added jwt authentication instead of iden
 
 # Setup
 
-```
+Development
+```shell
 dotnet restore
 dotnet build
 dotnet run
+```
+
+Production
+```shell
+# multi platform, runtime required
+dotnet publish
+# Linux, stand alone
+dotnet publish -c linuxrelease --self-contained --runtime linux-x64
+# Windows, stand alone
+dotnet publish -c windowsrelease --self-contained true --runtime win10-x64
+```
+
+Docker
+```yml
+#todo
 ```
 
 # Sources

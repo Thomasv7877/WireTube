@@ -1,8 +1,5 @@
-using WebApi.Authorization;
 using WebApi.Helpers;
 using WebApi.Services;
-using dotnet_react_xml_generator.Data;
-using dotnet_react_xml_generator.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using dotnet_react_xml_generator;
@@ -17,27 +14,15 @@ builder.Services.AddSwaggerGen();
 
 // add services to DI container
 {
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-    //Console.WriteLine(connectionString);
-
     var services = builder.Services;
     services.AddCors();
     services.AddControllers();
-
-    services.AddDbContext<ApplicationDbContext>(options =>
-       options.UseSqlite(connectionString));
 
     // configure strongly typed settings object
     services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
 
     // configure DI for application services
-    services.AddScoped<IJwtUtils, JwtUtils>();
-    services.AddScoped<IUserService, UserService>();
-    services.AddScoped<IUserRepository, UserRepository>();
-    services.AddScoped<ApplicationDbSeeder>();
     services.AddScoped<YtDlService>();
-    //services.AddScoped<YtDlServiceWProgress>();
-    
 }
 
 var app = builder.Build();
@@ -61,32 +46,13 @@ app.UseCors(x => x
     .AllowAnyMethod()
     .AllowAnyHeader());
 
-// custom jwt auth middleware
-app.UseMiddleware<JwtMiddleware>();
 
-app.MapControllerRoute(
-    name: "Trigger",
-    pattern: "{controller=Trigger}/{action=Index}/{id?}");
-app.MapControllerRoute(
-    name: "WeatherForecast",
-    pattern: "{controller=WeatherForecast}/{action=Index}/{id?}");
-app.MapControllerRoute(
-    name: "Users",
-    pattern: "{controller=Users}/{action=Index}/{id?}");
 app.MapControllerRoute(
     name: "YtApi",
     pattern: "{controller=YtApi}/{action=Index}/{id?}");
 
 app.MapFallbackToFile("index.html");
 
-// create db scheme and seed data
-using (var scope = app.Services.CreateScope())
-    {
-        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        context.Database.EnsureCreated();
-        var seeder = scope.ServiceProvider.GetRequiredService<ApplicationDbSeeder>();
-        await seeder.InitializeData();
-    }
 
 if (!app.Environment.IsDevelopment())
 {
