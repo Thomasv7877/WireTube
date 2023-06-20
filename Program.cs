@@ -1,6 +1,5 @@
 using WebApi.Helpers;
 using WebApi.Services;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using dotnet_react_xml_generator;
 using System.Diagnostics;
