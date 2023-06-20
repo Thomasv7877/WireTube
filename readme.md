@@ -33,7 +33,7 @@ Config files:
     * react_app_yt_api_key = (optional) insert Youtube API key here
 
 ## 3. Running
-Development
+
 ```shell
 dotnet restore
 dotnet build
