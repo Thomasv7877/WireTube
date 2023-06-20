@@ -9,8 +9,8 @@ Search | Play
 # Setup
 ## 1. Prerequisites
 ### Youtube API key
-One of the two search oiptions is through the Youtube API.  
-A Google Cloud Project is necessary te generate a required API key in requests, this is free.  
+One of the two search options is through the Youtube API.  
+A Google Cloud Project is used te generate the required API key in requests, this is free.  
 This is recommended as the second option uses scraping and is prone to breakage if the youtube search results structure were to ever change.
 
 Steps
