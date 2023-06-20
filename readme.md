@@ -2,6 +2,10 @@
 
 Search youtube, rip audio (using yt-dlp) and playback in a music library view.
 
+Search | Play
+--- | ---
+![Alt text](doc/Screenshot_20230620_201627.png) | ![Alt text](doc/Screenshot_20230620_201731.png)
+
 # Setup
 ## 1. Prerequisites
 ### Youtube API key
