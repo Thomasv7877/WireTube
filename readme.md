@@ -1,9 +1,34 @@
 # Background
 
-An edit on the 'react' dotnet template, added jwt authentication instead of identity server and some basic database communication for persisting users.
+Search youtube, rip audio (using yt-dlp) and playback in a music library view.
 
 # Setup
+## 1. Prerequisites
+### Youtube API key
+One of the two search oiptions is through the Youtube API.  
+A Google Cloud Project is necessary te generate a required API key in requests, this is free.  
+This is recommended as the second option uses scraping and is prone to breakage if the youtube search results structure were to ever change.
 
+Steps
+1. google cloud  
+https://console.cloud.google.com/apis  
+2. create project
+    * (lpane) credentials: create credentials > api key  
+    * (lpane) enabled api's & services > + enable api's and services > youtube data api
+
+### yt-dlp
+The backend processes downloads through yt-dlp (fork of youtube-dl)  
+https://github.com/yt-dlp/yt-dlp
+
+## 2. Configuration
+Config files:
+* `appsettings.json`  
+    * SaveFolder = download location and music library  
+    * Shortcut = (optional) name of pwa shortcut in project source, if present will aut ostart  
+* `ClientApp/.env`
+    * react_app_yt_api_key = (optional) insert Youtube API key here
+
+## 3. Running
 Development
 ```shell
 dotnet restore
@@ -11,7 +36,9 @@ dotnet build
 dotnet run
 ```
 
-Production
+# Deployment
+
+### Local
 ```shell
 # multi platform, runtime required
 dotnet publish
@@ -21,16 +48,18 @@ dotnet publish -c linuxrelease --self-contained --runtime linux-x64
 dotnet publish -c windowsrelease --self-contained true --runtime win10-x64
 ```
 
-Docker
+### Docker
 ```yml
 #todo
 ```
 
 # Sources
 
-- authentication:  
-https://jasonwatmore.com/net-7-csharp-jwt-authentication-tutorial-without-aspnet-core-identity  
-https://jasonwatmore.com/post/2019/04/06/react-jwt-authentication-tutorial-example  
-https://www.bezkoder.com/react-login-example-jwt-hooks/  
-- docker deployment:  
+Based on the .NET 'react' template.
+
+Docker deployment  
 https://medium.com/@mustafamagdy1/netcore-react-docker-1d19f051942c  
+
+Audio visualizer  
+https://dev.to/ssk14/visualizing-audio-as-a-waveform-in-react-o67   
+https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Visualizations_with_Web_Audio_API
