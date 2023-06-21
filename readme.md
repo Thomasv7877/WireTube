@@ -89,21 +89,38 @@ Example Docker setup with Dockerfile and docker-compose.yml files included. For 
 # Functionality:
 
 * React frontend <-> .NET web api backend (communication to and from)  
-[ytController.cs](Controllers/ytController.cs) <-> [YoutubeApp.js](ClientApp/src/components/YoutubeApp.js), [MusicPlayerInReact.js](ClientApp/src/components/MusicPlayerInReact.js)
-* Passing of download progress to front (sse endpoint | alt would be: websockets, SignalR)
+[ytController.cs](Controllers/ytController.cs) <-> [YoutubeApp.js](ClientApp/src/components/YoutubeApp.js), [MusicPlayerInReact.js](ClientApp/src/components/MusicPlayerInReact.js)  
+Implemented through basic Get and Post requests (Fetch js method), the one exception is the download progress.
+* Passing of download progress to front (sse endpoint | *alt would be: websockets, SignalR*)
 https://github.com/Thomasv7877/WireTube/blob/ead03cc2b7e4e6477356feae13493b252fac3ba1/Controllers/ytController.cs#L145-L152
 * Execute yt-dlp download (start Process and redirect output)
 https://github.com/Thomasv7877/WireTube/blob/e54a4639992432f8b6478cb678b378b86eed1957/Services/YtDlServiceWProgress.cs#L16-L36
 * Audio visualizer (Audio Web API)  
-[AudioVisualizer.js](ClientApp/src/components/AudioVisualizer.js)
+[AudioVisualizer.js](ClientApp/src/components/AudioVisualizer.js)  
+Flow:
+    * audioAnalyzer is run every time a new track is played :  
+    Create new audio context > create analyzer on the context + link media to the context (create source) > link analyzer to the source  
+    During playback a Uint8Array is constantly refreshed with data, based on this data a canvas can be drawn (with bars for example)
+    https://github.com/Thomasv7877/WireTube/blob/17057fd5734ec5e600beb08e36bda02142032a8a/ClientApp/src/components/AudioVisualizer.js#L66-L87
+    * waveForm / drawCallback:  
+    Every time the data changes in dataArray execute a callback in the callback ->  
+    requestAnimationFrame to smooth the transition from one drawing to another > clear canvas > call method to draw the bars -> animateBars
+    * animate bars:  
+    Calculate the necessary height of the bar per element in the dataArray, the width of each bar is calculated based on the canvas width and the length of the dataArray (add any offset) > define color > fillRect method draws a bar on the canvas
 * Search Youtube using the Youtube API
 https://github.com/Thomasv7877/WireTube/blob/ead03cc2b7e4e6477356feae13493b252fac3ba1/ClientApp/src/components/YoutubeApp.js#L15-L33
 * Search youtube without Youtube API = scraping (HtmlAgilityPack lib)  
-[YtSearchService.cs](Services/YtSearchService.cs)
+[YtSearchService.cs](Services/YtSearchService.cs) -> method `searchYtAlt` delegates to 3 helper functions
+    1.Do http request (HtmlAgilityPack), first filtering on HtmlDocument (only largest `<script>` tag is needed)
+    https://github.com/Thomasv7877/WireTube/blob/17057fd5734ec5e600beb08e36bda02142032a8a/Services/YtSearchService.cs#L21-L31
+    2. convert HtmlDocument to json
+    3. get neede video info and convert json to object for returning
 * Get audio file info from the backend (TagLibSharp lib)
 https://github.com/Thomasv7877/WireTube/blob/ead03cc2b7e4e6477356feae13493b252fac3ba1/Services/YtDlService.cs#L32-L51
 * Multi platform auto start of PWA shortcuts  
-[PwaManager.cs](Services/PwaManager.cs)
+[PwaManager.cs](Services/PwaManager.cs)  
+    * Windows: start shortcut but with ProcessStartInfo argument -> `UseShellExecute = true`
+    * Linux: More in depth, first the Exec command needs to be extracted from the .desktop shortcut, then it needs to be run from a `sh` command
 
 # Sources
 
