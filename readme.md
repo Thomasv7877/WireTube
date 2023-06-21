@@ -92,6 +92,7 @@ List
 * React frontend <-> .NET web api backend (communication to and from)
 * Passing of download progress to front (sse endpoint | alt would be: websockets, SignalR)
 * Execute yt-dlp download (start Process and redirect output)
+https://github.com/Thomasv7877/WireTube/blob/e54a4639992432f8b6478cb678b378b86eed1957/Services/YtDlServiceWProgress.cs#L16-L36
 * Audio visualizer (Audio Web API)
 * Search Youtube using the Youtube API
 * Search youtube without Youtube API = scraping (HtmlAgilityPack lib)
