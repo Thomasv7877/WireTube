@@ -10,7 +10,7 @@ Search | Play
 ## 1. Prerequisites
 ### Youtube API key
 One of the two search options is through the Youtube API.  
-A Google Cloud Project is used te generate the required API key in requests, this is free.  
+A Google Cloud Project is used te generate the required API key used in requests, this is free.  
 This is recommended as the second option uses scraping and is prone to breaking if the youtube search results structure were to ever change.
 
 Steps
@@ -40,8 +40,6 @@ dotnet build
 dotnet run
 ```
 
-Optional: auto start pwa 
-
 # Deployment
 
 ### 1. Local
@@ -63,16 +61,30 @@ browse to localhost:5000, then..
     * Firefox: not supported
 
 2. Place the created shortcut in the project root  
-Example:
-![Alt text](doc/Screenshot_20230621_145455.png)
+Example: starting the .NET binary now also starts the PWA app
+
+    ![Alt text](doc/Screenshot_20230621_145455.png)
 
 ### 2. Docker
 
-Example Dockerfile and docker-compose.yml included.
+Example Docker setup with Dockerfile and docker-compose.yml files included. For the Caddy part a domain name is expected to be managed through Cloudflare.
+
+**REM**: comment `<PublishRunWebpack>` tag in .csproj as frontend build is handled by a seperate container in this Docker setup.
 
 * [Dockerfile](Dockerfile)
+    1. .NET build and publish in sdk container 
+    2. React build is done in nodejs container
+    3. Result of both gets copied to an aspnet (runtime) container
 
 * [docker-compose.yml](docker-compose.yml)
+    * Build the .NET container
+    * Caddy: reverse proxying and automatic management of certificates through Certbot, in this instance a custom container is built to include the Cloudflare extension
+
+* [caddy](./caddy/)  
+
+    Example Caddyfile in the `file` sub directory, cloudeflare.ini with key te be able to use their api in certificate requests and nested Dockerfile (2 Dockerfiles in same dir not supported)
+
+**REM**: This is a shortened description, my other repository [dnschallenge-sidecar-rproxy](https://github.com/Thomasv7877/dnschallenge-sidecar-rproxy) has more background on these types of setups.
 
 # Functionality:
 
