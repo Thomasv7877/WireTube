@@ -107,7 +107,7 @@ https://github.com/Thomasv7877/WireTube/blob/ead03cc2b7e4e6477356feae13493b252fa
 
 # Sources
 
-Based on the .NET 'react' template.
+Based on the [.NET React template](https://learn.microsoft.com/en-us/aspnet/core/client-side/spa/react?view=aspnetcore-7.0&tabs=visual-studio).
 
 Docker deployment  
 https://medium.com/@mustafamagdy1/netcore-react-docker-1d19f051942c  
