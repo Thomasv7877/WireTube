@@ -2,7 +2,7 @@
 
 Search youtube, rip audio (using yt-dlp) and playback in a music library view.
 
-Search | Play
+Search & Download | Play
 --- | ---
 ![Alt text](doc/Screenshot_20230620_201627.png) | ![Alt text](doc/Screenshot_20230620_201731.png)
 
@@ -88,7 +88,6 @@ Example Docker setup with Dockerfile and docker-compose.yml files included. For 
 
 # Functionality:
 
-List
 * React frontend <-> .NET web api backend (communication to and from)  
 [ytController.cs](Controllers/ytController.cs) <-> [YoutubeApp.js](ClientApp/src/components/YoutubeApp.js), [MusicPlayerInReact.js](ClientApp/src/components/MusicPlayerInReact.js)
 * Passing of download progress to front (sse endpoint | alt would be: websockets, SignalR)
