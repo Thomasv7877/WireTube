@@ -30,7 +30,7 @@ Config files:
 * `appsettings.json`  
     * SaveFolder = download location and music library  
     * Shortcut = (optional) name of pwa shortcut in project source, if present will aut ostart  
-* `ClientApp/.env`
+* `ClientApp/.env` (dev) - `ClientApp/publish_config/.env` (prod)
     * react_app_yt_api_key = (optional) insert Youtube API key here
 
 ## 3. Running
@@ -92,7 +92,7 @@ Example Docker setup with Dockerfile and docker-compose.yml files included. For 
 * React frontend <-> .NET web api backend (communication to and from)  
 [ytController.cs](Controllers/ytController.cs) <-> [YoutubeApp.js](ClientApp/src/components/YoutubeApp.js), [MusicPlayerInReact.js](ClientApp/src/components/MusicPlayerInReact.js)  
 Implemented through basic Get and Post requests (Fetch js method), the one exception is download progress (next item).
-* Passing of download progress to front (sse endpoint | *alts could be: websockets, SignalR*)
+* Passing of download progress to front (Server Side Events endpoint | *alts could have been been: websockets, SignalR*)
 https://github.com/Thomasv7877/WireTube/blob/ead03cc2b7e4e6477356feae13493b252fac3ba1/Controllers/ytController.cs#L145-L152
 * Execute yt-dlp download (start Process and redirect output)
 https://github.com/Thomasv7877/WireTube/blob/e54a4639992432f8b6478cb678b378b86eed1957/Services/YtDlServiceWProgress.cs#L16-L36
@@ -112,7 +112,7 @@ https://github.com/Thomasv7877/WireTube/blob/ead03cc2b7e4e6477356feae13493b252fa
 * Search youtube without Youtube API = scraping (HtmlAgilityPack lib)  
 [YtSearchService.cs](Services/YtSearchService.cs) ->  
 method `searchYtAlt` delegates to 3 helper functions  
-    1.Do http request (HtmlAgilityPack), first filtering on HtmlDocument (only largest `<script>` tag is needed)
+    1. Do http request (HtmlAgilityPack), first filtering on HtmlDocument (only largest `<script>` tag is needed)
     https://github.com/Thomasv7877/WireTube/blob/17057fd5734ec5e600beb08e36bda02142032a8a/Services/YtSearchService.cs#L21-L31
     2. convert HtmlDocument to json
     3. get neede video info and convert json to object for returning
