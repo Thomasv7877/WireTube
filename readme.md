@@ -89,15 +89,22 @@ Example Docker setup with Dockerfile and docker-compose.yml files included. For 
 # Functionality:
 
 List
-* React frontend <-> .NET web api backend (communication to and from)
+* React frontend <-> .NET web api backend (communication to and from)  
+[ytController.cs](Controllers/ytController.cs) <-> [YoutubeApp.js](ClientApp/src/components/YoutubeApp.js), [MusicPlayerInReact.js](ClientApp/src/components/MusicPlayerInReact.js)
 * Passing of download progress to front (sse endpoint | alt would be: websockets, SignalR)
+https://github.com/Thomasv7877/WireTube/blob/ead03cc2b7e4e6477356feae13493b252fac3ba1/Controllers/ytController.cs#L145-L152
 * Execute yt-dlp download (start Process and redirect output)
 https://github.com/Thomasv7877/WireTube/blob/e54a4639992432f8b6478cb678b378b86eed1957/Services/YtDlServiceWProgress.cs#L16-L36
-* Audio visualizer (Audio Web API)
+* Audio visualizer (Audio Web API)  
+[AudioVisualizer.js](ClientApp/src/components/AudioVisualizer.js)
 * Search Youtube using the Youtube API
-* Search youtube without Youtube API = scraping (HtmlAgilityPack lib)
+https://github.com/Thomasv7877/WireTube/blob/ead03cc2b7e4e6477356feae13493b252fac3ba1/ClientApp/src/components/YoutubeApp.js#L15-L33
+* Search youtube without Youtube API = scraping (HtmlAgilityPack lib)  
+[YtSearchService.cs](Services/YtSearchService.cs)
 * Get audio file info from the backend (TagLibSharp lib)
-* Multi platform auto start of PWA shortcuts
+https://github.com/Thomasv7877/WireTube/blob/ead03cc2b7e4e6477356feae13493b252fac3ba1/Services/YtDlService.cs#L32-L51
+* Multi platform auto start of PWA shortcuts  
+[PwaManager.cs](Services/PwaManager.cs)
 
 # Sources
 
