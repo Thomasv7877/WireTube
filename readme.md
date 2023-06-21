@@ -112,10 +112,10 @@ https://github.com/Thomasv7877/WireTube/blob/ead03cc2b7e4e6477356feae13493b252fa
 * Search youtube without Youtube API = scraping (HtmlAgilityPack lib)  
 [YtSearchService.cs](Services/YtSearchService.cs) ->  
 method `searchYtAlt` delegates to 3 helper functions  
-    1. Do http request (HtmlAgilityPack), first filtering on HtmlDocument (only largest `<script>` tag is needed)
+    1. `ytSearch` - Do http request (HtmlAgilityPack), first filtering on HtmlDocument (only largest `<script>` tag is needed)
     https://github.com/Thomasv7877/WireTube/blob/17057fd5734ec5e600beb08e36bda02142032a8a/Services/YtSearchService.cs#L21-L31
-    2. convert HtmlDocument to json
-    3. get neede video info and convert json to object for returning
+    2. `parseYtToJson` - convert HtmlDocument to json
+    3. `convertJsonToDyn` - get needed video info and convert json to object for returning
 * Get audio file info from the backend (TagLibSharp lib)
 https://github.com/Thomasv7877/WireTube/blob/ead03cc2b7e4e6477356feae13493b252fac3ba1/Services/YtDlService.cs#L32-L51
 * Multi platform auto start of PWA shortcuts  
